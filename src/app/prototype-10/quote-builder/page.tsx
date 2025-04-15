@@ -814,7 +814,6 @@ export default function QuoteBuilder() {
             </div>
           </motion.div>
         </main>
-      </div>
     );
   }
   // Form-based view mode
@@ -1126,7 +1125,6 @@ export default function QuoteBuilder() {
             </div>
           </div>
         </main>
-      </div>
     );
   }
   // Guided mode (default)
@@ -1224,6 +1222,5 @@ export default function QuoteBuilder() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

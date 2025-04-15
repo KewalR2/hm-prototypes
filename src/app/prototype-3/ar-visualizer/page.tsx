@@ -307,6 +307,5 @@ export default function ARVisualizer() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

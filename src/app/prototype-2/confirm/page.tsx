@@ -147,6 +147,5 @@ export default function ConfirmationPage() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

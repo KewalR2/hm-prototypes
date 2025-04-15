@@ -1042,6 +1042,5 @@ export default function TrackOrder() {
           </motion.div>
         )}
       </main>
-    </div>
   );
 }

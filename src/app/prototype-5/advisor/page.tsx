@@ -530,6 +530,5 @@ Would you like to:
           </div>
         </div>
       </main>
-    </div>
   );
 }

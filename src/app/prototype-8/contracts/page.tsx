@@ -934,6 +934,5 @@ export default function ContractManagementPage() {
           </div>
         )}
       </main>
-    </div>
   );
 }

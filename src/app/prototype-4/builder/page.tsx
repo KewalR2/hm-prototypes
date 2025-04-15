@@ -755,6 +755,5 @@ export default function VisualBuilder() {
           </p>
         </div>
       </main>
-    </div>
   );
 }

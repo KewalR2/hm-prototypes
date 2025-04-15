@@ -694,6 +694,5 @@ export default function OrderTracker() {
           </motion.div>
         )}
       </main>
-    </div>
   );
 }

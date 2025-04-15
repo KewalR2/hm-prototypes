@@ -39,7 +39,6 @@ export default function ConfirmationPage() {
             Start New Quote
           </button>
         </main>
-      </div>
     );
   }
   return (
@@ -211,6 +210,5 @@ export default function ConfirmationPage() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

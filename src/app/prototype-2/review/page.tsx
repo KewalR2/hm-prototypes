@@ -296,6 +296,7 @@ export default function ReviewPage() {
     router.push('/prototype-2/confirm');
   };
   return (
+    <div>
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">

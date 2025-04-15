@@ -113,6 +113,5 @@ function ContentWrapper({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </main>
-    </div>
   );
 }

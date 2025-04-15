@@ -711,7 +711,6 @@ export default function QuestionFlow() {
             </div>
           </motion.div>
         </main>
-      </div>
     );
   }
   // Main question flow UI
@@ -784,6 +783,5 @@ export default function QuestionFlow() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

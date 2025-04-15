@@ -965,6 +965,5 @@ export default function MaterialsScheduler() {
           </div>
         )}
       </main>
-    </div>
   );
 }

@@ -1045,6 +1045,5 @@ export default function CollaborativeWorkspace() {
           </button>
         </div>
       </main>
-    </div>
   );
 }

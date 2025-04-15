@@ -75,6 +75,5 @@ export default function AIAssistantPage() {
           </div>
         </div>
       </main>
-    </div>
   );
 }

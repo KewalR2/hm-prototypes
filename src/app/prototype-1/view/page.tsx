@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
+
 export default function QuoteViewPage() {
   const router = useRouter();
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -181,6 +183,7 @@ export default function QuoteViewPage() {
     router.push('/prototype-1/track');
   };
   return (
+    <div>
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
