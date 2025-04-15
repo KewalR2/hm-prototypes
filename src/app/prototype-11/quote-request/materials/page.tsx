@@ -242,11 +242,17 @@ export default function MaterialsPage() {
       return;
     }
     
+    // Ensure all product IDs are using the proper format
+    const formattedProducts = selectedProducts.map(item => ({
+      ...item,
+      productId: typeof item.productId === 'string' ? item.productId : `prod-${String(item.productId).padStart(3, '0')}`
+    }));
+    
     // Update the quote request with form values
     updateQuoteRequest({
       selectedPlantId: selectedPlantId || undefined,
       selectedPlantIds: selectedPlantIds.length > 0 ? selectedPlantIds : undefined,
-      products: selectedProducts,
+      products: formattedProducts,
       requestsSamples,
       requestsConsultation,
       needsInstallation,

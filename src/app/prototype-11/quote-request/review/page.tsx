@@ -46,7 +46,9 @@ export default function ReviewPage() {
         let plant = getPlantById(selectedPlant || quoteRequest.selectedPlantId || '');
         if (!plant) {
           // Find a plant that has all the products
-          const productIds = quoteRequest.products?.map(p => p.productId) || [];
+          const productIds = quoteRequest.products?.map(p => 
+            typeof p.productId === 'string' ? p.productId : `prod-${String(p.productId).padStart(3, '0')}`
+          ) || [];
           plant = PLANTS.find(p => 
             productIds.every(id => p.availableProducts.includes(id))
           ) || PLANTS[0]; // Fallback to first plant if none found
@@ -55,7 +57,8 @@ export default function ReviewPage() {
         // Select appropriate truck based on materials
         const productCategories = new Set(
           quoteRequest.products?.map(p => {
-            const product = getProductById(p.productId);
+            const productId = typeof p.productId === 'string' ? p.productId : `prod-${String(p.productId).padStart(3, '0')}`;
+            const product = getProductById(productId);
             return product?.category;
           }) || []
         );
@@ -90,9 +93,15 @@ export default function ReviewPage() {
         );
         
         // Calculate product costs and details
+        console.log("Products in quoteRequest:", quoteRequest.products);
         const productDetails = (quoteRequest.products || []).map(item => {
-          const product = getProductById(item.productId);
-          if (!product) throw new Error(`Product not found: ${item.productId}`);
+          // Make sure we have a valid product ID
+          console.log("Processing product item:", item);
+          const productId = typeof item.productId === 'string' ? item.productId : `prod-${String(item.productId).padStart(3, '0')}`;
+          console.log("Formatted productId:", productId);
+          const product = getProductById(productId);
+          console.log("Found product:", product);
+          if (!product) throw new Error(`Product not found: ${productId}`);
           
           const unitPrice = product.basePrice;
           const quantity = item.quantity;

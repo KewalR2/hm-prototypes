@@ -156,6 +156,7 @@ export default function TrackingPage() {
     return ((currentStep + 1) / steps) * 100;
   };
   return (
+    <div>
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-10 text-center">Order Tracking</h1>
         {isLoading ? (

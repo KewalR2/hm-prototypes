@@ -358,8 +358,29 @@ const AIConversationInterface: React.FC = () => {
   
   // Submit the full quote
   const submitQuote = () => {
+    // Format product IDs to ensure they have the correct format for the mockData module
+    const formattedProducts = selectedMaterials.map(m => {
+      // Convert numeric IDs (like "1") to string format "prod-001"
+      let productId = m.id;
+      if (/^\d+$/.test(productId)) {
+        productId = `prod-${productId.padStart(3, '0')}`;
+      }
+      
+      return {
+        productId,
+        name: m.name,
+        quantity: m.quantity,
+        unit: m.unit,
+        specialInstructions: ""
+      };
+    });
+    
+    // Add debug logs to see the product data
+    console.log("Original selected materials:", selectedMaterials);
+    console.log("Formatted products:", formattedProducts);
+    
     // Update quote request with all collected information
-    updateQuoteRequest({
+    const quoteData = {
       projectName,
       projectDescription,
       projectType,
@@ -380,15 +401,12 @@ const AIConversationInterface: React.FC = () => {
         email: "",
         phone: ""
       },
-      products: selectedMaterials.map(m => ({
-        productId: m.id,
-        name: m.name,
-        quantity: m.quantity,
-        unit: m.unit,
-        specialInstructions: ""
-      })),
+      products: formattedProducts,
       aiInsights: aiInsights
-    });
+    };
+    
+    console.log("Submitting quote data:", quoteData);
+    updateQuoteRequest(quoteData);
     
     // Show success message
     setToastMessage("Quote submitted successfully!");

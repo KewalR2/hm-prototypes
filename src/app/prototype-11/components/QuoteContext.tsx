@@ -104,10 +104,15 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
 
   // Function to update the quote request data
   const updateQuoteRequest = (data: Partial<QuoteRequest>) => {
-    setQuoteRequest(prev => ({
-      ...prev,
-      ...data,
-    }));
+    console.log("Updating quote request with data:", data);
+    setQuoteRequest(prev => {
+      const updated = {
+        ...prev,
+        ...data,
+      };
+      console.log("Updated quote request:", updated);
+      return updated;
+    });
   };
 
   // Function to add a message to the AI conversation

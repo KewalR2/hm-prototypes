@@ -839,27 +839,35 @@ export const extractMaterialInfo = (text: string) => {
 };
 
 // Get product by ID helper function
-export const getProductById = (id: string): Product | undefined => {
-  return PRODUCTS.find(product => product.id === id);
+export const getProductById = (id: string | number): Product | undefined => {
+  // If id is a number, convert it to prod-XXX format
+  const formattedId = typeof id === 'number' ? `prod-${String(id).padStart(3, '0')}` : id;
+  return PRODUCTS.find(product => product.id === formattedId);
 };
 
 // Get base product by ID
-export const getBaseProductById = (id: string): BaseProduct | undefined => {
-  return BASE_PRODUCTS.find(product => product.id === id);
+export const getBaseProductById = (id: string | number): BaseProduct | undefined => {
+  // If id is a number, convert it to prod-XXX format
+  const formattedId = typeof id === 'number' ? `prod-${String(id).padStart(3, '0')}` : id;
+  return BASE_PRODUCTS.find(product => product.id === formattedId);
 };
 
 // Get plant by ID helper function
-export const getPlantById = (id: string): Plant | undefined => {
-  return PLANTS.find(plant => plant.id === id);
+export const getPlantById = (id: string | number): Plant | undefined => {
+  // If id is a number, convert it to plant-XXX format
+  const formattedId = typeof id === 'number' ? `plant-${String(id).padStart(3, '0')}` : id;
+  return PLANTS.find(plant => plant.id === formattedId);
 };
 
 // Get truck by ID helper function
-export const getTruckById = (id: string): Truck | undefined => {
-  return TRUCKS.find(truck => truck.id === id);
+export const getTruckById = (id: string | number): Truck | undefined => {
+  // If id is a number, convert it to truck-XXX format
+  const formattedId = typeof id === 'number' ? `truck-${String(id).padStart(3, '0')}` : id;
+  return TRUCKS.find(truck => truck.id === formattedId);
 };
 
 // Get products available at a specific plant
-export const getProductsForPlant = (plantId: string): Product[] => {
+export const getProductsForPlant = (plantId: string | number): Product[] => {
   const plant = getPlantById(plantId);
   if (!plant) return [];
   
