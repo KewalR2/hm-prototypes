@@ -1,21 +1,15 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Types
 type OrderStatus = 'Pending Approval' | 'Approved' | 'Processing' | 'Ready for Delivery' | 'In Transit' | 'Delivered';
-
 type TrackingEvent = {
   date: string;
   status: OrderStatus;
   description: string;
   location?: string;
 };
-
 type MaterialItem = {
   id: string;
   name: string;
@@ -23,7 +17,6 @@ type MaterialItem = {
   unit: string;
   price: number;
 };
-
 type OrderData = {
   quoteId: string;
   projectName: string;
@@ -46,7 +39,6 @@ type OrderData = {
     estimatedDeliveryTime?: number; // hours
   };
 };
-
 export default function TrackOrder() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,14 +48,12 @@ export default function TrackOrder() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [tab, setTab] = useState<'status' | 'details' | 'metrics'>('status');
   const [viewMode, setViewMode] = useState<'client' | 'business'>('client');
-
   // Load from session storage on initial render
   useEffect(() => {
     const savedQuote = sessionStorage.getItem('latestQuote');
     if (savedQuote) {
       try {
         const parsedQuote = JSON.parse(savedQuote) as OrderData;
-        
         // Add tracking events for demo
         const trackingEvents: TrackingEvent[] = [
           {
@@ -72,18 +62,15 @@ export default function TrackOrder() {
             description: 'Quote request submitted and pending review'
           }
         ];
-        
         // If status is 'Pending Approval', generate random delivery date 3-7 days in future
         const deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + Math.floor(Math.random() * 5) + 3);
-
         // For demo: add simulated conversion metrics
         const conversionMetrics = {
           timeToApproval: 4.5, // hours
           processingTime: 12.0, // hours
           estimatedDeliveryTime: 72.0 // hours
         };
-
         setOrder({
           ...parsedQuote,
           trackingEvents,
@@ -95,7 +82,6 @@ export default function TrackOrder() {
       }
     }
   }, []);
-
   // Helper functions
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -108,7 +94,6 @@ export default function TrackOrder() {
       default: return 'bg-gray-500';
     }
   };
-
   const toggleSection = (section: string) => {
     if (expandedSection === section) {
       setExpandedSection(null);
@@ -116,19 +101,15 @@ export default function TrackOrder() {
       setExpandedSection(section);
     }
   };
-
   // Search for order
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!searchQuery.trim()) {
       alert('Please enter a quote or order ID');
       return;
     }
-    
     setLoading(true);
     setNotFound(false);
-    
     // Simulating API call with timeout
     setTimeout(() => {
       if (order && searchQuery.trim().toUpperCase() === order.quoteId) {
@@ -138,14 +119,12 @@ export default function TrackOrder() {
         const orderDate = new Date();
         const deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 5);
-        
         // For demo: add simulated conversion metrics
         const conversionMetrics = {
           timeToApproval: 2.75, // hours
           processingTime: 8.5, // hours
           estimatedDeliveryTime: 96.0 // hours
         };
-        
         const demoOrder: OrderData = {
           quoteId: 'QT-123456',
           projectName: 'Highway 95 Expansion',
@@ -203,13 +182,10 @@ export default function TrackOrder() {
       setLoading(false);
     }, 1500);
   };
-
   // Handle approving a quote
   const handleApprove = () => {
     if (!order) return;
-    
     setLoading(true);
-    
     // Simulate API call
     setTimeout(() => {
       const orderDate = new Date(order.date);
@@ -221,29 +197,23 @@ export default function TrackOrder() {
           description: 'Quote approved and converted to order'
         }
       ];
-      
       setOrder({
         ...order,
         status: 'Approved',
         trackingEvents: updatedEvents
       });
-      
       setLoading(false);
     }, 1000);
   };
-
   // Simulate refreshing the status
   const refreshStatus = () => {
     if (!order) return;
-    
     setLoading(true);
-    
     // Simulate API call
     setTimeout(() => {
       const currentStatus = order.status;
       let newStatus: OrderStatus = currentStatus;
       let newEvent: TrackingEvent | null = null;
-      
       // Simulate order progressing through statuses
       if (currentStatus === 'Pending Approval') {
         newStatus = 'Approved';
@@ -284,7 +254,6 @@ export default function TrackOrder() {
           location: order.projectAddress
         };
       }
-      
       if (newEvent) {
         setOrder({
           ...order,
@@ -292,15 +261,12 @@ export default function TrackOrder() {
           trackingEvents: [...(order.trackingEvents || []), newEvent]
         });
       }
-      
       setLoading(false);
     }, 1500);
   };
-
   // UI Components
   const renderTabContent = () => {
     if (!order) return null;
-
     switch (tab) {
       case 'status':
         return (
@@ -336,7 +302,6 @@ export default function TrackOrder() {
                 ) : order.status === 'Delivered' ? 'Order Complete' : 'Refresh Status'}
               </motion.button>
             </div>
-            
             {/* Timeline Visual */}
             <div className="relative">
               {order.trackingEvents && order.trackingEvents.map((event, index) => (
@@ -345,7 +310,6 @@ export default function TrackOrder() {
                   {index < (order.trackingEvents?.length || 0) - 1 && (
                     <div className="absolute top-6 bottom-0 left-[15px] w-0.5 bg-gray-200 dark:bg-gray-700"></div>
                   )}
-                  
                   <div className="flex">
                     {/* Status Circle */}
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${getStatusColor(event.status)} text-white z-10`}>
@@ -382,7 +346,6 @@ export default function TrackOrder() {
                         </svg>
                       )}
                     </div>
-                    
                     {/* Event Details */}
                     <div className="ml-4">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
@@ -403,7 +366,6 @@ export default function TrackOrder() {
                   </div>
                 </div>
               ))}
-              
               {/* If order is pending approval, show approve button */}
               {order.status === 'Pending Approval' && (
                 <div className="ml-12 mt-4">
@@ -421,7 +383,6 @@ export default function TrackOrder() {
                   </p>
                 </div>
               )}
-              
               {/* Pending Delivery Info */}
               {order.status !== 'Delivered' && (
                 <div className="mt-6 p-4 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -443,7 +404,6 @@ export default function TrackOrder() {
             </div>
           </motion.div>
         );
-      
       case 'details':
         return (
           <motion.div 
@@ -470,7 +430,6 @@ export default function TrackOrder() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
               {expandedSection === 'project' && (
                 <motion.div 
                   className="pb-4 space-y-3"
@@ -500,7 +459,6 @@ export default function TrackOrder() {
                 </motion.div>
               )}
             </div>
-            
             {/* Materials Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
               <button
@@ -518,7 +476,6 @@ export default function TrackOrder() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
               {expandedSection === 'materials' && (
                 <motion.div 
                   className="pb-4"
@@ -556,7 +513,6 @@ export default function TrackOrder() {
                 </motion.div>
               )}
             </div>
-            
             {/* Contact Information Section */}
             <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
               <button
@@ -574,7 +530,6 @@ export default function TrackOrder() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
               {expandedSection === 'contact' && (
                 <motion.div 
                   className="pb-4 space-y-3"
@@ -600,7 +555,6 @@ export default function TrackOrder() {
                 </motion.div>
               )}
             </div>
-            
             {/* Special Requirements Section */}
             {order.specialRequirements && (
               <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
@@ -619,7 +573,6 @@ export default function TrackOrder() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                
                 {expandedSection === 'requirements' && (
                   <motion.div 
                     className="pb-4 space-y-3"
@@ -638,7 +591,6 @@ export default function TrackOrder() {
             )}
           </motion.div>
         );
-      
       case 'metrics':
         // Only show metrics in business view
         if (viewMode !== 'business') {
@@ -663,7 +615,6 @@ export default function TrackOrder() {
             </div>
           );
         }
-        
         return (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -674,7 +625,6 @@ export default function TrackOrder() {
           >
             <div className="mb-6">
               <h3 className="text-lg font-bold mb-4">Quote-to-Order Conversion Metrics</h3>
-              
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Time to Approval */}
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -696,7 +646,6 @@ export default function TrackOrder() {
                     </div>
                   </div>
                 </div>
-                
                 {/* Processing Time */}
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center mb-2">
@@ -718,7 +667,6 @@ export default function TrackOrder() {
                     </div>
                   </div>
                 </div>
-                
                 {/* Total Delivery Time */}
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center mb-2">
@@ -741,11 +689,9 @@ export default function TrackOrder() {
                 </div>
               </div>
             </div>
-            
             {/* Detailed Metrics */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
               <h3 className="text-lg font-bold mb-4">Performance Analysis</h3>
-              
               <div className="space-y-6">
                 {/* Conversion Rate Visualization */}
                 <div>
@@ -760,7 +706,6 @@ export default function TrackOrder() {
                     <span className="text-green-600 dark:text-green-400">+23% above average</span>
                   </div>
                 </div>
-                
                 {/* Average Response Time */}
                 <div>
                   <h4 className="font-medium mb-2">Average Quote Response Time</h4>
@@ -774,7 +719,6 @@ export default function TrackOrder() {
                     <span className="text-green-600 dark:text-green-400">42% faster</span>
                   </div>
                 </div>
-                
                 {/* Order Fulfillment Time */}
                 <div>
                   <h4 className="font-medium mb-2">Order Fulfillment Time</h4>
@@ -790,7 +734,6 @@ export default function TrackOrder() {
                 </div>
               </div>
             </div>
-            
             {/* Business Metrics Data Tables */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
               <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
@@ -855,16 +798,11 @@ export default function TrackOrder() {
             </div>
           </motion.div>
         );
-      
       default:
         return null;
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-10" />
-      
       <main className="container mx-auto px-4 py-12">
         <motion.h1 
           className="text-4xl font-bold mb-8 text-center"
@@ -874,7 +812,6 @@ export default function TrackOrder() {
         >
           Order Tracking
         </motion.h1>
-        
         <motion.div 
           className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10"
           initial={{ opacity: 0, y: 20 }}
@@ -911,7 +848,6 @@ export default function TrackOrder() {
               </div>
             )}
           </div>
-          
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
@@ -943,7 +879,6 @@ export default function TrackOrder() {
               ) : 'Track'}
             </motion.button>
           </form>
-          
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             <p>Or use the demo IDs: <span className="text-primary cursor-pointer" onClick={() => setSearchQuery('QT-123456')}>QT-123456</span> or <span className="text-primary cursor-pointer" onClick={() => setSearchQuery('QT-DEMO')}>QT-DEMO</span></p>
             {order && (
@@ -951,7 +886,6 @@ export default function TrackOrder() {
             )}
           </div>
         </motion.div>
-        
         {/* Loading Indicator */}
         {loading && !order && (
           <motion.div 
@@ -969,7 +903,6 @@ export default function TrackOrder() {
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Searching for your order...</p>
           </motion.div>
         )}
-        
         {/* Not Found Message */}
         {notFound && !loading && (
           <motion.div 
@@ -997,7 +930,6 @@ export default function TrackOrder() {
             </motion.button>
           </motion.div>
         )}
-        
         {/* Order Details */}
         {order && !loading && (
           <motion.div 
@@ -1024,7 +956,6 @@ export default function TrackOrder() {
                   </div>
                 </div>
               </div>
-              
               {/* Tab Navigation */}
               <div className="border-b border-gray-200 dark:border-gray-700">
                 <div className="flex -mb-px">
@@ -1060,13 +991,11 @@ export default function TrackOrder() {
                   </button>
                 </div>
               </div>
-              
               {/* Tab Content */}
               <AnimatePresence mode="wait">
                 {renderTabContent()}
               </AnimatePresence>
             </div>
-            
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 justify-center mb-10">
               <motion.button
@@ -1077,7 +1006,6 @@ export default function TrackOrder() {
               >
                 Back to Home
               </motion.button>
-              
               {order.status === 'Delivered' && (
                 <motion.button
                   onClick={() => {
@@ -1090,7 +1018,6 @@ export default function TrackOrder() {
                   Download Receipt
                 </motion.button>
               )}
-              
               {(order.status === 'Pending Approval' || order.status === 'Approved') && (
                 <motion.button
                   onClick={() => {
@@ -1103,7 +1030,6 @@ export default function TrackOrder() {
                   Download Quote
                 </motion.button>
               )}
-              
               <motion.button
                 onClick={() => router.push('/prototype-10/quote-builder')}
                 className="border border-gray-300 dark:border-gray-600 hover:border-primary hover:text-primary font-medium py-3 px-6 rounded-lg transition-colors"
@@ -1116,8 +1042,6 @@ export default function TrackOrder() {
           </motion.div>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 }

@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Material options
 const materials = [
   {
@@ -51,7 +47,6 @@ const materials = [
     price: '$43.15 per ton'
   }
 ];
-
 export default function ARVisualizer() {
   const [isScanning, setIsScanning] = useState(false);
   const [isScanComplete, setIsScanComplete] = useState(false);
@@ -61,23 +56,19 @@ export default function ARVisualizer() {
   const [error, setError] = useState('');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  
   // Function to start the camera for "scanning"
   const startCamera = async () => {
     setError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setCameraAccessGranted(true);
         setIsScanning(true);
-        
         // Simulate a scanning process
         setTimeout(() => {
           setIsScanning(false);
           setIsScanComplete(true);
-          
           // Stop the camera after "scanning"
           const tracks = stream.getTracks();
           tracks.forEach(track => track.stop());
@@ -89,47 +80,38 @@ export default function ARVisualizer() {
       setIsScanning(false);
     }
   };
-  
   // Select a material
   const selectMaterial = (material) => {
     setSelectedMaterial(material);
-    
     // Draw the selected material texture on the canvas (simulated)
     if (canvasRef.current && isScanComplete) {
       const context = canvasRef.current.getContext('2d');
-      
       // Fill with a placeholder pattern
       context.fillStyle = '#f0f0f0';
       context.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-      
       // Draw a grid pattern with the material ID as a basic visualization
       const gridSize = 20;
       context.strokeStyle = '#999';
-      
       for (let x = 0; x <= canvasRef.current.width; x += gridSize) {
         context.beginPath();
         context.moveTo(x, 0);
         context.lineTo(x, canvasRef.current.height);
         context.stroke();
       }
-      
       for (let y = 0; y <= canvasRef.current.height; y += gridSize) {
         context.beginPath();
         context.moveTo(0, y);
         context.lineTo(canvasRef.current.width, y);
         context.stroke();
       }
-      
       // Write the material name
       context.font = 'bold 24px Arial';
       context.fillStyle = '#333';
       context.textAlign = 'center';
       context.fillText(material.name, canvasRef.current.width / 2, 40);
-      
       // Add a texture effect based on material ID
       const colors = ['#d9d0c1', '#c5c5c5', '#e1d8c3', '#b5b5b5', '#e6d7af', '#d2c8a8'];
       context.fillStyle = colors[material.id - 1] || '#cccccc';
-      
       for (let x = 0; x < canvasRef.current.width; x += gridSize) {
         for (let y = 0; y < canvasRef.current.height; y += gridSize) {
           if ((x + y) % (material.id * 5) === 0) {
@@ -139,7 +121,6 @@ export default function ARVisualizer() {
       }
     }
   };
-  
   // Request a quote
   const requestQuote = () => {
     if (selectedMaterial) {
@@ -150,25 +131,20 @@ export default function ARVisualizer() {
         scannedArea: '450 sq ft (simulated)',
         estimatedCost: `$${(parseFloat(selectedMaterial.price.replace('$', '').split(' ')[0]) * quantity).toFixed(2)}`
       };
-      
       sessionStorage.setItem('arQuoteData', JSON.stringify(quoteData));
-      
       // Redirect to quote confirmation (would implement this in a real app)
       alert('Quote request submitted! In a real implementation, you would be redirected to a confirmation page.');
     }
   };
-  
   // Set up canvas dimensions on component mount
   useEffect(() => {
     if (canvasRef.current) {
       canvasRef.current.width = 350;
       canvasRef.current.height = 350;
-      
       // Draw initial blank canvas
       const context = canvasRef.current.getContext('2d');
       context.fillStyle = '#f0f0f0';
       context.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-      
       // Draw text prompt
       context.font = '16px Arial';
       context.fillStyle = '#999';
@@ -176,11 +152,7 @@ export default function ARVisualizer() {
       context.fillText('Scan your area to begin', canvasRef.current.width / 2, canvasRef.current.height / 2);
     }
   }, []);
-  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-3" />
-      
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
@@ -191,14 +163,11 @@ export default function ARVisualizer() {
               Back to Prototype 3
             </Link>
           </div>
-          
           <h1 className="text-3xl font-bold mb-6 text-center">AR Material Visualizer</h1>
-          
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left column: Visualization area */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
               <h2 className="text-xl font-semibold mb-4">Project Visualization</h2>
-              
               {/* Camera view */}
               <div className="relative mb-4">
                 {isScanning && (
@@ -220,7 +189,6 @@ export default function ARVisualizer() {
                     </div>
                   </>
                 )}
-                
                 {!isScanning && (
                   <canvas 
                     ref={canvasRef} 
@@ -228,7 +196,6 @@ export default function ARVisualizer() {
                   ></canvas>
                 )}
               </div>
-              
               {/* Camera controls */}
               <div className="flex justify-center mb-4">
                 {!isScanComplete && (
@@ -244,20 +211,17 @@ export default function ARVisualizer() {
                     {isScanning ? 'Scanning...' : 'Scan Project Area'}
                   </button>
                 )}
-                
                 {isScanComplete && !selectedMaterial && (
                   <p className="text-sm text-center text-gray-600 dark:text-gray-400">
                     Scan complete! Select a material from the catalog to visualize →
                   </p>
                 )}
               </div>
-              
               {error && (
                 <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-3 rounded-md mb-4 text-sm">
                   {error}
                 </div>
               )}
-              
               {/* Selected material details */}
               {isScanComplete && selectedMaterial && (
                 <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -267,7 +231,6 @@ export default function ARVisualizer() {
                   </p>
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-primary">{selectedMaterial.price}</span>
-                    
                     <div className="flex items-center">
                       <label className="text-sm mr-2">Quantity (tons):</label>
                       <input 
@@ -280,7 +243,6 @@ export default function ARVisualizer() {
                       />
                     </div>
                   </div>
-                  
                   <div className="mt-4">
                     <button 
                       onClick={requestQuote}
@@ -292,11 +254,9 @@ export default function ARVisualizer() {
                 </div>
               )}
             </div>
-            
             {/* Right column: Material selection */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
               <h2 className="text-xl font-semibold mb-4">Material Catalog</h2>
-              
               <div className="grid grid-cols-2 gap-3">
                 {materials.map(material => (
                   <div 
@@ -324,7 +284,6 @@ export default function ARVisualizer() {
                   </div>
                 ))}
               </div>
-              
               {!isScanComplete && (
                 <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
                   Complete site scanning to enable material selection
@@ -332,7 +291,6 @@ export default function ARVisualizer() {
               )}
             </div>
           </div>
-          
           {/* Info section */}
           <div className="mt-8 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg p-6">
             <h3 className="font-medium mb-2 flex items-center">
@@ -349,8 +307,6 @@ export default function ARVisualizer() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

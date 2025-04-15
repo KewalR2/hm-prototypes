@@ -3,19 +3,16 @@
 import ThemedLayout from '@/components/ThemedLayout';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { QuoteProvider } from './components/QuoteContext';
 
-export default function Prototype11Layout({
+export default function Prototype9Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ThemedLayout currentPage="prototype-11">
-      <Header currentPage="prototype-11" />
-      <QuoteProvider>
-        {children}
-      </QuoteProvider>
+    <ThemedLayout currentPage="prototype-9">
+      <Header currentPage="prototype-9" />
+      {children}
       <Footer />
     </ThemedLayout>
   );

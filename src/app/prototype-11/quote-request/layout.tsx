@@ -1,17 +1,12 @@
 'use client';
-
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { QuoteProvider, useQuote } from '@/app/prototype-11/components/QuoteContext';
 import Link from 'next/link';
-
 // Progress bar component with links for quick navigation
 function ProgressBar() {
   const { currentStep, totalSteps } = useQuote();
   const pathname = usePathname();
-  
   // Define steps and their paths
   const steps = [
     { number: 1, name: 'Project Info', path: '/prototype-11/quote-request/project-info' },
@@ -20,10 +15,8 @@ function ProgressBar() {
     { number: 4, name: 'Delivery', path: '/prototype-11/quote-request/delivery' },
     { number: 5, name: 'Review', path: '/prototype-11/quote-request/review' },
   ];
-  
   // Calculate progress percentage
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-  
   return (
     <div className="mb-8">
       {/* Mobile Progress Bar (simplified) */}
@@ -39,26 +32,22 @@ function ProgressBar() {
           ></div>
         </div>
       </div>
-      
       {/* Desktop Progress Steps with Navigation */}
       <div className="hidden md:block">
         <div className="relative">
           {/* Progress Bar Background */}
           <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700"></div>
-          
           {/* Progress Bar Fill */}
           <div 
             className="absolute top-5 left-0 h-1 bg-primary transition-all duration-300" 
             style={{ width: `${progressPercentage}%` }}
           ></div>
-          
           {/* Steps */}
           <div className="flex justify-between">
             {steps.map((step) => {
               const isCurrent = step.number === currentStep;
               const isCompleted = step.number < currentStep;
               const isActive = isCurrent || isCompleted;
-              
               return (
                 <Link
                   key={step.number}
@@ -95,7 +84,6 @@ function ProgressBar() {
     </div>
   );
 }
-
 // Main layout for the quote request flow
 export default function QuoteRequestLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -104,38 +92,27 @@ export default function QuoteRequestLayout({ children }: { children: React.React
     </QuoteProvider>
   );
 }
-
 // Wrapper that determines the right layout based on the path and input mode
 function ContentWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { inputMode } = useQuote();
-  
   // Check if this is the AI assistant page
   const isAIAssistantPage = pathname.includes('/ai-assistant');
-  
   // For AI assistant page, we don't need the progress bar and form container
   if (isAIAssistantPage) {
     return children;
   }
-  
   // For regular form pages, use the standard layout with progress bar
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-11" />
-      
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-10 text-center">Comprehensive Quote Request</h1>
-        
         <div className="max-w-4xl mx-auto">
           <ProgressBar />
-          
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
             {children}
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

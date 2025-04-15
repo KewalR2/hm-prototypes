@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import Image from 'next/image';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Prototype12Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-12" />
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       
       <main className="flex-grow container mx-auto px-4 py-12">
         <section className="max-w-4xl mx-auto text-center mb-12">
@@ -135,8 +136,6 @@ export default function Prototype12Home() {
           </div>
         </section>
       </main>
-      
-      <Footer />
     </div>
   );
 }

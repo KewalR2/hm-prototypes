@@ -1,10 +1,7 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuote } from '@/app/prototype-11/components/QuoteContext';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { 
   PRODUCTS, 
   PLANTS, 
@@ -16,30 +13,24 @@ import {
 } from '@/app/prototype-11/mockData';
 import ToastNotification from '@/app/prototype-11/components/ToastNotification';
 import Link from 'next/link';
-
 export default function TrackingPage() {
   const router = useRouter();
   const { quoteRequest } = useQuote();
-  
   // State for order information
   const [orderData, setOrderData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState<Date | null>(null);
   const [orderStatus, setOrderStatus] = useState<'pending' | 'processing' | 'shipped' | 'delivered'>('processing');
-  
   // Toast state
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
-  
   // Load order data from sessionStorage
   useEffect(() => {
     setIsLoading(true);
-    
     // Get the accepted quote ID from sessionStorage
     const quoteId = sessionStorage.getItem('acceptedQuoteId');
-    
     if (!quoteId) {
       setToastMessage('No active order found. Please place an order first.');
       setToastType('error');
@@ -47,7 +38,6 @@ export default function TrackingPage() {
       setIsLoading(false);
       return;
     }
-    
     // Simulate API fetch delay
     setTimeout(() => {
       try {
@@ -110,13 +100,11 @@ export default function TrackingPage() {
             }
           ]
         };
-        
         setOrderData(mockOrderData);
         setOrderStatus(mockOrderData.status);
         setEstimatedDeliveryDate(mockOrderData.estimatedDeliveryDate);
         setCurrentStep(mockOrderData.trackingHistory.length - 1);
         setIsLoading(false);
-        
       } catch (error) {
         console.error('Error loading order data:', error);
         setToastMessage('An error occurred while loading your order data.');
@@ -126,23 +114,18 @@ export default function TrackingPage() {
       }
     }, 1500);
   }, [quoteRequest]);
-  
   // Get plant details
   const getPlantDetails = () => {
     if (!orderData) return null;
-    
     const plantId = orderData.sourceHaul.plantId;
     return getPlantById(plantId);
   };
-  
   // Get truck details
   const getTruckDetails = () => {
     if (!orderData) return null;
-    
     const truckId = orderData.sourceHaul.truckId;
     return getTruckById(truckId);
   };
-  
   // Format date
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -151,7 +134,6 @@ export default function TrackingPage() {
       day: 'numeric',
     });
   };
-  
   // Format time
   const formatTime = (date: Date) => {
     return new Date(date).toLocaleTimeString('en-US', {
@@ -159,7 +141,6 @@ export default function TrackingPage() {
       minute: '2-digit',
     });
   };
-  
   // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -168,22 +149,15 @@ export default function TrackingPage() {
       minimumFractionDigits: 2,
     }).format(amount);
   };
-  
   // Calculate progress percentage
   const calculateProgress = () => {
     const steps = orderData?.trackingHistory.length || 0;
     if (steps === 0) return 0;
-    
     return ((currentStep + 1) / steps) * 100;
   };
-  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-11" />
-      
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-10 text-center">Order Tracking</h1>
-        
         {isLoading ? (
           <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 flex flex-col items-center justify-center min-h-[400px]">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mb-4"></div>
@@ -221,7 +195,6 @@ export default function TrackingPage() {
                       Placed on {formatDate(orderData.orderDate)}
                     </p>
                   </div>
-                  
                   <div className="mt-4 md:mt-0 flex items-center">
                     <div className={`w-3 h-3 rounded-full mr-2 ${
                       orderStatus === 'delivered' 
@@ -236,7 +209,6 @@ export default function TrackingPage() {
                   </div>
                 </div>
               </div>
-              
               {/* Order Details */}
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -245,14 +217,12 @@ export default function TrackingPage() {
                     <p className="font-medium">{orderData.customer?.name || 'N/A'}</p>
                     <p>{orderData.deliveryAddress?.street}</p>
                     <p>{orderData.deliveryAddress?.city}, {orderData.deliveryAddress?.state} {orderData.deliveryAddress?.zipCode}</p>
-                    
                     {orderData.deliveryAddress?.specialInstructions && (
                       <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         <span className="font-medium">Special Instructions:</span> {orderData.deliveryAddress.specialInstructions}
                       </p>
                     )}
                   </div>
-                  
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Delivery Information</h3>
                     <p>
@@ -268,7 +238,6 @@ export default function TrackingPage() {
                         </p>
                       </>
                     )}
-                    
                     <div className="mt-4">
                       <Link href="#"
                         className="text-primary hover:text-blue-600 text-sm font-medium flex items-center"
@@ -282,7 +251,6 @@ export default function TrackingPage() {
                     </div>
                   </div>
                 </div>
-                
                 {/* Order Items */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                   <h3 className="text-lg font-medium mb-4">Order Items</h3>
@@ -305,7 +273,6 @@ export default function TrackingPage() {
                               <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {item.details?.category} • {item.details?.unitOfMeasure}
                               </div>
-                              
                               {item.sourcePlantId && (
                                 <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                                   <span className="font-medium">Source:</span> {
@@ -313,7 +280,6 @@ export default function TrackingPage() {
                                   }
                                 </div>
                               )}
-                              
                               {item.specialInstructions && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   <span className="font-medium">Note:</span> {item.specialInstructions}
@@ -347,11 +313,9 @@ export default function TrackingPage() {
                 </div>
               </div>
             </div>
-            
             {/* Tracking Information */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8">
               <h3 className="text-lg font-medium mb-6">Tracking Information</h3>
-              
               {/* Progress Bar */}
               <div className="mb-8">
                 <div className="bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
@@ -361,7 +325,6 @@ export default function TrackingPage() {
                   ></div>
                 </div>
               </div>
-              
               {/* Timeline */}
               <div className="relative">
                 {orderData.trackingHistory.map((event: any, index: number) => (
@@ -381,7 +344,6 @@ export default function TrackingPage() {
                           <span className="text-xs">{index + 1}</span>
                         )}
                       </div>
-                      
                       {/* Connecting line */}
                       {index < orderData.trackingHistory.length - 1 && (
                         <div className={`w-0.5 h-full ${
@@ -391,7 +353,6 @@ export default function TrackingPage() {
                         }`}></div>
                       )}
                     </div>
-                    
                     {/* Content */}
                     <div className={`transition-opacity duration-500 ${
                       index <= currentStep ? 'opacity-100' : 'opacity-50'
@@ -409,11 +370,9 @@ export default function TrackingPage() {
                   </div>
                 ))}
               </div>
-              
               {/* Shipping Details */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
                 <h4 className="text-base font-medium mb-4">Shipping Details</h4>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Source Information</h5>
@@ -424,7 +383,6 @@ export default function TrackingPage() {
                           <p className="text-sm text-gray-500 dark:text-gray-400">
                             {getPlantDetails()!.location}
                           </p>
-                          
                           {getPlantDetails()!.specialCapabilities && (
                             <div className="mt-2 flex flex-wrap gap-1">
                               <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -444,7 +402,6 @@ export default function TrackingPage() {
                       )}
                     </div>
                   </div>
-                  
                   <div>
                     <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transportation</h5>
                     <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -464,7 +421,6 @@ export default function TrackingPage() {
                 </div>
               </div>
             </div>
-            
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <Link href="/prototype-11"
@@ -475,7 +431,6 @@ export default function TrackingPage() {
                 </svg>
                 Back to Dashboard
               </Link>
-              
               <div className="flex space-x-4">
                 <button
                   type="button"
@@ -488,7 +443,6 @@ export default function TrackingPage() {
                 >
                   Download Details
                 </button>
-                
                 <button
                   type="button"
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -505,7 +459,6 @@ export default function TrackingPage() {
           </div>
         )}
       </main>
-      
       {/* Toast Notification */}
       {showToast && (
         <ToastNotification 
@@ -514,8 +467,6 @@ export default function TrackingPage() {
           onClose={() => setShowToast(false)} 
         />
       )}
-      
-      <Footer />
     </div>
   );
 }

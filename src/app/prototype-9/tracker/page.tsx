@@ -1,21 +1,15 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Types for order tracking
 type OrderStatus = 'Pending Approval' | 'Approved' | 'Processing' | 'Ready for Delivery' | 'In Transit' | 'Delivered';
-
 type TrackingEvent = {
   date: string;
   status: OrderStatus;
   description: string;
   location?: string;
 };
-
 type OrderData = {
   quoteId: string;
   projectName: string;
@@ -38,7 +32,6 @@ type OrderData = {
   estimatedDelivery?: string;
   trackingEvents?: TrackingEvent[];
 };
-
 export default function OrderTracker() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,14 +39,12 @@ export default function OrderTracker() {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-
   // Load latest quote from session storage on initial render
   useEffect(() => {
     const savedQuote = sessionStorage.getItem('latestQuote');
     if (savedQuote) {
       try {
         const parsedQuote = JSON.parse(savedQuote) as OrderData;
-        
         // Add tracking events for demo
         const trackingEvents: TrackingEvent[] = [
           {
@@ -62,11 +53,9 @@ export default function OrderTracker() {
             description: 'Quote request submitted and pending review'
           }
         ];
-        
         // If status is 'Pending Approval', generate random delivery date 3-7 days in future
         const deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + Math.floor(Math.random() * 5) + 3);
-
         setOrder({
           ...parsedQuote,
           trackingEvents,
@@ -77,7 +66,6 @@ export default function OrderTracker() {
       }
     }
   }, []);
-
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case 'Pending Approval':
@@ -96,18 +84,14 @@ export default function OrderTracker() {
         return 'bg-gray-500';
     }
   };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!searchQuery.trim()) {
       alert('Please enter a quote or order ID');
       return;
     }
-    
     setLoading(true);
     setNotFound(false);
-    
     // Simulating API call with timeout
     setTimeout(() => {
       if (order && searchQuery.trim().toUpperCase() === order.quoteId) {
@@ -117,7 +101,6 @@ export default function OrderTracker() {
         const orderDate = new Date();
         const deliveryDate = new Date();
         deliveryDate.setDate(deliveryDate.getDate() + 5);
-        
         const demoOrder: OrderData = {
           quoteId: 'QT-123456',
           projectName: 'Highway 95 Expansion',
@@ -174,7 +157,6 @@ export default function OrderTracker() {
       setLoading(false);
     }, 1500);
   };
-
   const toggleSection = (section: string) => {
     if (expandedSection === section) {
       setExpandedSection(null);
@@ -182,12 +164,9 @@ export default function OrderTracker() {
       setExpandedSection(section);
     }
   };
-
   const handleApprove = () => {
     if (!order) return;
-    
     setLoading(true);
-    
     // Simulate API call
     setTimeout(() => {
       const orderDate = new Date(order.date);
@@ -199,28 +178,22 @@ export default function OrderTracker() {
           description: 'Quote approved and converted to order'
         }
       ];
-      
       setOrder({
         ...order,
         status: 'Approved',
         trackingEvents: updatedEvents
       });
-      
       setLoading(false);
     }, 1000);
   };
-
   const refreshStatus = () => {
     if (!order) return;
-    
     setLoading(true);
-    
     // Simulate API call
     setTimeout(() => {
       const currentStatus = order.status;
       let newStatus: OrderStatus = currentStatus;
       let newEvent: TrackingEvent | null = null;
-      
       // Simulate order progressing through statuses
       if (currentStatus === 'Pending Approval') {
         newStatus = 'Approved';
@@ -261,7 +234,6 @@ export default function OrderTracker() {
           location: order.projectAddress
         };
       }
-      
       if (newEvent) {
         setOrder({
           ...order,
@@ -269,15 +241,10 @@ export default function OrderTracker() {
           trackingEvents: [...(order.trackingEvents || []), newEvent]
         });
       }
-      
       setLoading(false);
     }, 1500);
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-9" />
-      
       <main className="container mx-auto px-4 py-12">
         <motion.h1 
           className="text-4xl font-bold mb-8 text-center"
@@ -287,7 +254,6 @@ export default function OrderTracker() {
         >
           Order Tracking
         </motion.h1>
-        
         <motion.div 
           className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-10"
           initial={{ opacity: 0, y: 20 }}
@@ -326,7 +292,6 @@ export default function OrderTracker() {
               ) : 'Track'}
             </motion.button>
           </form>
-          
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             <p>Or use the demo IDs: <span className="text-primary cursor-pointer" onClick={() => setSearchQuery('QT-123456')}>QT-123456</span> or <span className="text-primary cursor-pointer" onClick={() => setSearchQuery('QT-DEMO')}>QT-DEMO</span></p>
             {order && (
@@ -334,7 +299,6 @@ export default function OrderTracker() {
             )}
           </div>
         </motion.div>
-        
         {/* Loading Indicator */}
         {loading && !order && (
           <motion.div 
@@ -352,7 +316,6 @@ export default function OrderTracker() {
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Searching for your order...</p>
           </motion.div>
         )}
-        
         {/* Not Found Message */}
         {notFound && !loading && (
           <motion.div 
@@ -380,7 +343,6 @@ export default function OrderTracker() {
             </motion.button>
           </motion.div>
         )}
-        
         {/* Order Details */}
         {order && !loading && (
           <motion.div 
@@ -407,7 +369,6 @@ export default function OrderTracker() {
                   </div>
                 </div>
               </div>
-              
               {/* Status Timeline */}
               <div className="p-6">
                 <div className="flex justify-between mb-4">
@@ -435,7 +396,6 @@ export default function OrderTracker() {
                     ) : order.status === 'Delivered' ? 'Order Complete' : 'Refresh Status'}
                   </motion.button>
                 </div>
-                
                 {/* Timeline Visual */}
                 <div className="relative">
                   {order.trackingEvents && order.trackingEvents.map((event, index) => (
@@ -444,7 +404,6 @@ export default function OrderTracker() {
                       {index < (order.trackingEvents?.length || 0) - 1 && (
                         <div className="absolute top-6 bottom-0 left-[15px] w-0.5 bg-gray-200 dark:bg-gray-700"></div>
                       )}
-                      
                       <div className="flex">
                         {/* Status Circle */}
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${getStatusColor(event.status)} text-white z-10`}>
@@ -481,7 +440,6 @@ export default function OrderTracker() {
                             </svg>
                           )}
                         </div>
-                        
                         {/* Event Details */}
                         <div className="ml-4">
                           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
@@ -502,7 +460,6 @@ export default function OrderTracker() {
                       </div>
                     </div>
                   ))}
-                  
                   {/* If order is pending approval, show approve button */}
                   {order.status === 'Pending Approval' && (
                     <div className="ml-12 mt-4">
@@ -520,7 +477,6 @@ export default function OrderTracker() {
                       </p>
                     </div>
                   )}
-                  
                   {/* Pending Delivery Info */}
                   {order.status !== 'Delivered' && (
                     <div className="mt-6 p-4 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -542,12 +498,10 @@ export default function OrderTracker() {
                 </div>
               </div>
             </div>
-            
             {/* Order Details Accordion */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-8">
               <div className="p-6">
                 <h3 className="text-lg font-bold mb-4">Order Details</h3>
-                
                 {/* Project Details Section */}
                 <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
                   <button
@@ -565,7 +519,6 @@ export default function OrderTracker() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  
                   {expandedSection === 'project' && (
                     <motion.div 
                       className="pb-4 space-y-3"
@@ -595,7 +548,6 @@ export default function OrderTracker() {
                     </motion.div>
                   )}
                 </div>
-                
                 {/* Materials Section */}
                 <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
                   <button
@@ -613,7 +565,6 @@ export default function OrderTracker() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  
                   {expandedSection === 'materials' && (
                     <motion.div 
                       className="pb-4"
@@ -651,7 +602,6 @@ export default function OrderTracker() {
                     </motion.div>
                   )}
                 </div>
-                
                 {/* Contact Information Section */}
                 <div className="border-b border-gray-200 dark:border-gray-700 last:border-0">
                   <button
@@ -669,7 +619,6 @@ export default function OrderTracker() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  
                   {expandedSection === 'contact' && (
                     <motion.div 
                       className="pb-4 space-y-3"
@@ -697,7 +646,6 @@ export default function OrderTracker() {
                 </div>
               </div>
             </div>
-            
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 justify-center mb-10">
               <motion.button
@@ -708,7 +656,6 @@ export default function OrderTracker() {
               >
                 Back to Home
               </motion.button>
-              
               {order.status === 'Delivered' && (
                 <motion.button
                   onClick={() => {
@@ -721,7 +668,6 @@ export default function OrderTracker() {
                   Download Receipt
                 </motion.button>
               )}
-              
               {(order.status === 'Pending Approval' || order.status === 'Approved') && (
                 <motion.button
                   onClick={() => {
@@ -734,7 +680,6 @@ export default function OrderTracker() {
                   Download Quote
                 </motion.button>
               )}
-              
               <motion.button
                 onClick={() => {
                   alert('This would contact support in a real application.');
@@ -749,8 +694,6 @@ export default function OrderTracker() {
           </motion.div>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 }

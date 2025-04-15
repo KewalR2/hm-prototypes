@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Prototype5Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-5" />
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
 
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
@@ -132,8 +133,6 @@ export default function Prototype5Home() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

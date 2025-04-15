@@ -1,14 +1,9 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 export default function ReviewPage() {
   const router = useRouter();
-  
   // Initial data state
   const [quoteData, setQuoteData] = useState({
     project: {
@@ -45,20 +40,16 @@ export default function ReviewPage() {
       email: "john@acmeconstruction.com"
     }
   });
-
   // State for tracking editing modes
   const [voiceResponseReceived, setVoiceResponseReceived] = useState(false);
   const [editingSection, setEditingSection] = useState(null); // 'project', 'materials', 'delivery', 'contact'
-  
   // Edit field states
   const [editedProject, setEditedProject] = useState({...quoteData.project});
   const [editedDelivery, setEditedDelivery] = useState({...quoteData.delivery});
   const [editedContact, setEditedContact] = useState({...quoteData.contact});
-  
   // Start editing a section
   const startEditing = (section) => {
     setEditingSection(section);
-    
     // Reset edit fields to current values
     if (section === 'project') {
       setEditedProject({...quoteData.project});
@@ -68,7 +59,6 @@ export default function ReviewPage() {
       setEditedContact({...quoteData.contact});
     }
   };
-  
   // Save edits
   const saveEdits = () => {
     if (editingSection === 'project') {
@@ -80,27 +70,21 @@ export default function ReviewPage() {
     } else if (editingSection === 'contact') {
       setQuoteData(prev => ({...prev, contact: editedContact}));
     }
-    
     setEditingSection(null);
   };
-  
   // Cancel edits
   const cancelEdits = () => {
     setEditingSection(null);
   };
-
   // Load voice responses from session storage
   useEffect(() => {
     const responseData = sessionStorage.getItem('voiceResponses');
-    
     if (responseData) {
       try {
         const responses = JSON.parse(responseData);
-        
         // Map the voice responses to the structured data format
         if (responses.length >= 6) {
           console.log('Processing voice responses:', responses);
-          
           // Process each response and extract relevant information
           const projectResponse = responses.find(r => r.id === 1)?.response || '';
           const materialsResponse = responses.find(r => r.id === 2)?.response || '';
@@ -108,7 +92,6 @@ export default function ReviewPage() {
           const locationResponse = responses.find(r => r.id === 4)?.response || '';
           const contactResponse = responses.find(r => r.id === 5)?.response || '';
           const specialResponse = responses.find(r => r.id === 6)?.response || '';
-          
           // Extract data from responses and update quoteData
           setQuoteData(prev => ({
             project: {
@@ -124,7 +107,6 @@ export default function ReviewPage() {
             },
             contact: extractContactInfo(contactResponse) || prev.contact
           }));
-          
           setVoiceResponseReceived(true);
         }
       } catch (error) {
@@ -132,11 +114,9 @@ export default function ReviewPage() {
       }
     }
   }, []);
-
   // Helper functions to extract structured data from voice responses
   function extractDescription(response) {
     if (!response) return '';
-    
     // Try to extract a project description from the response
     // Look for common phrases that might indicate a description
     const descriptionPatterns = [
@@ -144,25 +124,20 @@ export default function ReviewPage() {
       /approximately([^.]+)/i,
       /project\s+(?:is|for)([^.]+)/i,
     ];
-    
     for (const pattern of descriptionPatterns) {
       const match = response.match(pattern);
       if (match && match[1]) {
         return match[1].trim();
       }
     }
-    
     // Fallback: if there are multiple sentences, return the second one as it often contains description
     const parts = response.split('.');
     return parts && parts.length > 1 ? parts[1].trim() : '';
   }
-
   function extractMaterials(response) {
     if (!response) return null;
-    
     // More robust extraction with fallbacks
     const materials = [];
-    
     // Common material types to look for
     const materialTypes = [
       { 
@@ -196,12 +171,10 @@ export default function ReviewPage() {
         pattern: /(\d+[,.]?\d*)\s*(?:tons?|cubic\s+yards?|cy|yards?)\s+(?:of\s+)?(?:clean\s+)?(?:dirt|soil|fill)/i
       }
     ];
-    
     // Check for each material type
     for (const material of materialTypes) {
       // Check if any of the keywords for this material are present
       const keywordFound = material.keyword.some(keyword => response.toLowerCase().includes(keyword));
-      
       if (keywordFound) {
         const match = response.match(material.pattern);
         if (match && match[1]) {
@@ -220,7 +193,6 @@ export default function ReviewPage() {
         }
       }
     }
-    
     // Generic number + material pattern as a final fallback
     if (materials.length === 0) {
       const genericMatches = response.matchAll(/(\d+[,.]?\d*)\s*(?:tons?|cubic\s+yards?|cy|yards?)\s+(?:of\s+)?([a-zA-Z\s]+)/gi);
@@ -234,13 +206,10 @@ export default function ReviewPage() {
         }
       }
     }
-    
     return materials.length > 0 ? materials : null;
   }
-
   function extractSchedule(response) {
     if (!response) return null;
-    
     // More robust schedule extraction
     const schedulePatterns = [
       {
@@ -260,34 +229,28 @@ export default function ReviewPage() {
         schedule: match => `Starting ${match[1]}, ${match[2]}`
       }
     ];
-    
     for (const { pattern, schedule } of schedulePatterns) {
       const match = response.match(pattern);
       if (match) {
         return typeof schedule === 'function' ? schedule(match) : schedule;
       }
     }
-    
     return null;
   }
-
   function extractContactInfo(response) {
     if (!response) return null;
-    
     const contactInfo = {
       company: "Unknown Company",
       name: "Unknown Name",
       phone: "Unknown Phone",
       email: "Unknown Email"
     };
-    
     // More robust company name extraction
     const companyPatterns = [
       /company\s+(?:is|called|named)\s+([^,.]+)/i,
       /(?:at|with|for)\s+([A-Z][A-Za-z\s]+)(?:,|\.|and)/i,
       /([A-Z][A-Za-z\s]+)(?:\s+company|\s+construction|\s+inc\.?|\s+llc\.?)/i
     ];
-    
     for (const pattern of companyPatterns) {
       const match = response.match(pattern);
       if (match && match[1]) {
@@ -295,13 +258,11 @@ export default function ReviewPage() {
         break;
       }
     }
-    
     // More robust name extraction
     const namePatterns = [
       /(?:I'?m|name\s+is|this\s+is)\s+([^,.]+)/i,
       /([A-Z][a-z]+\s+[A-Z][a-z]+)(?:,|\.|and)/i
     ];
-    
     for (const pattern of namePatterns) {
       const match = response.match(pattern);
       if (match && match[1]) {
@@ -309,19 +270,16 @@ export default function ReviewPage() {
         break;
       }
     }
-    
     // Email extraction - looking for standard email format
     const emailMatch = response.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/i);
     if (emailMatch) {
       contactInfo.email = emailMatch[1];
     }
-    
     // Phone extraction - various formats
     const phonePatterns = [
       /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/,  // (555) 123-4567 or 555-123-4567
       /\d{3}[-.\s]\d{3}[-.\s]\d{4}/           // 555 123 4567 or similar
     ];
-    
     for (const pattern of phonePatterns) {
       const match = response.match(pattern);
       if (match) {
@@ -329,21 +287,15 @@ export default function ReviewPage() {
         break;
       }
     }
-    
     return contactInfo;
   }
-
   // Handle submitting the quote request
   const handleSubmitQuote = () => {
     // Save the final quote data for the confirmation page
     sessionStorage.setItem('finalQuoteData', JSON.stringify(quoteData));
     router.push('/prototype-2/confirm');
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="home" />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -354,7 +306,6 @@ export default function ReviewPage() {
               Back to Prototype 2
             </Link>
           </div>
-
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-8">
             <div className="flex items-center justify-center mb-6">
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4">
@@ -364,17 +315,14 @@ export default function ReviewPage() {
               </div>
               <h1 className="text-2xl font-bold">Interview Complete!</h1>
             </div>
-            
             {voiceResponseReceived && (
               <div className="bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 rounded-lg p-4 mb-6">
                 <p className="font-medium">Voice responses received and processed successfully!</p>
               </div>
             )}
-            
             <p className="text-center mb-8 text-gray-600 dark:text-gray-300">
               Please review the information we've captured from your voice responses
             </p>
-
             {/* Review Sections */}
             <div className="space-y-8 mb-8">
               {/* Project Information */}
@@ -408,7 +356,6 @@ export default function ReviewPage() {
                     </div>
                   )}
                 </div>
-                
                 {editingSection !== 'project' ? (
                   <div className="space-y-2">
                     <p>
@@ -462,7 +409,6 @@ export default function ReviewPage() {
                   </div>
                 )}
               </div>
-
               {/* Materials */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -494,7 +440,6 @@ export default function ReviewPage() {
                     </div>
                   )}
                 </div>
-                
                 <div className="space-y-4">
                   {quoteData.materials.map((material, index) => (
                     <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
@@ -508,7 +453,6 @@ export default function ReviewPage() {
                     </div>
                   ))}
                 </div>
-                
                 {editingSection === 'materials' && (
                   <div className="mt-4 p-3 border border-gray-200 dark:border-gray-700 rounded-md">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -517,7 +461,6 @@ export default function ReviewPage() {
                   </div>
                 )}
               </div>
-
               {/* Delivery Information */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -549,7 +492,6 @@ export default function ReviewPage() {
                     </div>
                   )}
                 </div>
-                
                 {editingSection !== 'delivery' ? (
                   <div className="space-y-2">
                     <p>
@@ -603,7 +545,6 @@ export default function ReviewPage() {
                   </div>
                 )}
               </div>
-
               {/* Contact Information */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -635,7 +576,6 @@ export default function ReviewPage() {
                     </div>
                   )}
                 </div>
-                
                 {editingSection !== 'contact' ? (
                   <div className="space-y-2">
                     <p>
@@ -705,7 +645,6 @@ export default function ReviewPage() {
                 )}
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-end mt-10">
               <button 
@@ -723,7 +662,6 @@ export default function ReviewPage() {
               </button>
             </div>
           </div>
-
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-6 mt-8">
             <div className="flex items-start">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -741,8 +679,6 @@ export default function ReviewPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

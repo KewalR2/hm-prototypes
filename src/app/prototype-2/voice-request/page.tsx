@@ -1,14 +1,9 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 export default function VoiceRequestPage() {
   const router = useRouter();
-  
   // Interview questions and state
   const questions = [
     {
@@ -48,7 +43,6 @@ export default function VoiceRequestPage() {
       response: ""
     }
   ];
-
   // Current state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState(questions.map(q => ({ id: q.id, response: q.response })));
@@ -59,26 +53,21 @@ export default function VoiceRequestPage() {
   const [inputMode, setInputMode] = useState("voice"); // "voice" or "typing"
   const [recognitionSupported, setRecognitionSupported] = useState(false);
   const textareaRef = useRef(null);
-
   // Speech recognition reference
   const recognitionRef = useRef(null);
-
   // Set up speech recognition
   useEffect(() => {
     // Check if browser supports SpeechRecognition
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
       if (SpeechRecognition) {
         setRecognitionSupported(true);
-        
         // Only create the recognition instance if it doesn't exist yet
         if (!recognitionRef.current) {
           recognitionRef.current = new SpeechRecognition();
           recognitionRef.current.continuous = false; // Changed to false to avoid keeping old values
           recognitionRef.current.interimResults = false; // Changed to false for better reliability
           recognitionRef.current.lang = 'en-US';
-          
           recognitionRef.current.onresult = (event) => {
             if (event.results && event.results.length > 0) {
               // Only take the final result
@@ -90,13 +79,11 @@ export default function VoiceRequestPage() {
               }
             }
           };
-          
           recognitionRef.current.onerror = (event) => {
             console.error('Speech recognition error', event.error);
             setError(`Error: ${event.error}. Try typing instead.`);
             setIsListening(false);
           };
-          
           recognitionRef.current.onend = () => {
             setIsListening(false);
           };
@@ -107,7 +94,6 @@ export default function VoiceRequestPage() {
         setError("Browser doesn't support native speech recognition. Please use typing mode.");
       }
     }
-    
     return () => {
       try {
         if (recognitionRef.current && isListening) {
@@ -118,7 +104,6 @@ export default function VoiceRequestPage() {
       }
     };
   }, []);
-
   // Start/stop speech recognition
   const toggleSpeechRecognition = () => {
     // Guard against trying to start recognition when it's already running
@@ -132,7 +117,6 @@ export default function VoiceRequestPage() {
     } else {
       setError("");
       setTranscription(""); // Clear previous transcript
-      
       try {
         // Check if recognition instance needs to be recreated
         if (!recognitionRef.current) {
@@ -142,7 +126,6 @@ export default function VoiceRequestPage() {
             recognitionRef.current.continuous = false; // Set to false to avoid keeping old results
             recognitionRef.current.interimResults = false; // Set to false for better reliability
             recognitionRef.current.lang = 'en-US';
-            
             recognitionRef.current.onresult = (event) => {
               if (event.results && event.results.length > 0) {
                 // Just use the latest result
@@ -151,19 +134,16 @@ export default function VoiceRequestPage() {
                 setTranscription(transcript);
               }
             };
-            
             recognitionRef.current.onerror = (event) => {
               console.error('Speech recognition error', event.error);
               setError(`Error: ${event.error}. Try typing instead.`);
               setIsListening(false);
             };
-            
             recognitionRef.current.onend = () => {
               setIsListening(false);
             };
           }
         }
-        
         // Reset the recognition instance
         if (recognitionRef.current) {
           // Create a new instance each time to avoid issues with previous results
@@ -172,7 +152,6 @@ export default function VoiceRequestPage() {
           recognitionRef.current.continuous = false;
           recognitionRef.current.interimResults = false;
           recognitionRef.current.lang = 'en-US';
-          
           recognitionRef.current.onresult = (event) => {
             if (event.results && event.results.length > 0) {
               const finalResult = event.results[event.results.length - 1];
@@ -180,17 +159,14 @@ export default function VoiceRequestPage() {
               setTranscription(transcript);
             }
           };
-          
           recognitionRef.current.onerror = (event) => {
             console.error('Speech recognition error', event.error);
             setError(`Error: ${event.error}. Try typing instead.`);
             setIsListening(false);
           };
-          
           recognitionRef.current.onend = () => {
             setIsListening(false);
           };
-          
           recognitionRef.current.start();
           setIsListening(true);
         }
@@ -201,12 +177,10 @@ export default function VoiceRequestPage() {
       }
     }
   };
-
   // Handle typing input
   const handleTypingInput = (e) => {
     setTranscription(e.target.value);
   };
-
   // Toggle between voice and typing modes
   const toggleInputMode = () => {
     if (inputMode === "voice") {
@@ -223,7 +197,6 @@ export default function VoiceRequestPage() {
       setInputMode("voice");
     }
   };
-
   // Handle moving to the next question
   const handleNextQuestion = () => {
     // Save current response
@@ -233,7 +206,6 @@ export default function VoiceRequestPage() {
         : r
       )
     );
-    
     // If we're at the last question, submit all responses
     if (currentQuestionIndex === questions.length - 1) {
       // Store all responses in session storage for the review page
@@ -248,22 +220,18 @@ export default function VoiceRequestPage() {
       // Move to next question and reset transcription
       setCurrentQuestionIndex(prevIndex => prevIndex + 1);
       setTranscription("");
-      
       // Stop current recognition
       if (isListening) {
         recognitionRef.current?.stop();
         setIsListening(false);
       }
-      
       setProgress((currentQuestionIndex + 2) * (100 / questions.length)); // Update progress percentage
-      
       // Reset to voice mode for next question if user switched to typing
       if (inputMode === "typing" && recognitionSupported) {
         setInputMode("voice");
       }
     }
   };
-
   // Retry current question
   const handleRetry = () => {
     setTranscription("");
@@ -273,11 +241,8 @@ export default function VoiceRequestPage() {
     }
     setError("");
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="home" />
-
+    <div>
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -288,7 +253,6 @@ export default function VoiceRequestPage() {
               Back to Prototype 2
             </Link>
           </div>
-
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-8 mb-8">
             <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Voice Quote Request</h1>
             <p className="text-center mb-4 text-gray-600 dark:text-gray-300">
@@ -296,7 +260,6 @@ export default function VoiceRequestPage() {
                 ? "Tell us about your project and material needs using your voice" 
                 : "Type your response to continue"}
             </p>
-            
             {inputMode === "voice" && recognitionSupported && (
               <p className="text-center mb-8 text-blue-600 dark:text-blue-400 text-sm font-medium">
                 <span className="inline-flex items-center">
@@ -307,7 +270,6 @@ export default function VoiceRequestPage() {
                 </span>
               </p>
             )}
-
             {/* Voice Interview Container */}
             <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-8 mb-8">
               {/* Current Question Display */}
@@ -318,7 +280,6 @@ export default function VoiceRequestPage() {
                   {questions[currentQuestionIndex].hint}
                 </p>
               </div>
-
               {/* Input Mode Toggle */}
               <div className="flex justify-center mb-6">
                 <button 
@@ -343,7 +304,6 @@ export default function VoiceRequestPage() {
                   Typing
                 </button>
               </div>
-
               {inputMode === "voice" ? (
                 /* Voice Input Area */
                 <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6">
@@ -379,7 +339,6 @@ export default function VoiceRequestPage() {
                       ? "Speak your response clearly" 
                       : "Or switch to typing mode below"}
                   </p>
-                  
                   {error && (
                     <div className="mt-4 p-2 bg-red-100 text-red-700 rounded-lg text-sm">
                       {error}
@@ -399,7 +358,6 @@ export default function VoiceRequestPage() {
                   ></textarea>
                 </div>
               )}
-
               {/* Transcription Display - only show if there's content or in voice mode */}
               {(transcription || inputMode === "voice") && (
                 <div className="mb-8">
@@ -411,7 +369,6 @@ export default function VoiceRequestPage() {
                   </div>
                 </div>
               )}
-
               {/* Voice Controls */}
               <div className="flex justify-center space-x-4">
                 <button 
@@ -429,7 +386,6 @@ export default function VoiceRequestPage() {
                 </button>
               </div>
             </div>
-
             {/* Interview Progress */}
             <div className="mb-6">
               <div className="flex justify-between mb-2">
@@ -440,7 +396,6 @@ export default function VoiceRequestPage() {
                 <div className="h-2 bg-primary rounded-full" style={{ width: `${progress}%` }}></div>
               </div>
             </div>
-
             {/* Questions Preview */}
             <div>
               <h3 className="font-semibold mb-3 text-sm">Questions we'll ask:</h3>
@@ -453,7 +408,6 @@ export default function VoiceRequestPage() {
               </ol>
             </div>
           </div>
-
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 text-center">
             <h3 className="font-medium mb-2">Prefer a traditional form?</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -468,8 +422,6 @@ export default function VoiceRequestPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

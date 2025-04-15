@@ -1,26 +1,19 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 export default function ConfirmationPage() {
   // State for handling quote data
   const [quoteData, setQuoteData] = useState(null);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [referenceNumber] = useState(`VQR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`);
-  
   // Load quote data from session storage
   useEffect(() => {
     const data = sessionStorage.getItem('finalQuoteData');
-    
     if (data) {
       try {
         const parsedData = JSON.parse(data);
         setQuoteData(parsedData);
         setQuoteSubmitted(true);
-        
         // Clear session storage after successful processing
         setTimeout(() => {
           sessionStorage.removeItem('finalQuoteData');
@@ -30,11 +23,7 @@ export default function ConfirmationPage() {
       }
     }
   }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="home" />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -45,26 +34,21 @@ export default function ConfirmationPage() {
               Back to Prototype 2
             </Link>
           </div>
-
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-8 text-center">
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            
             <h1 className="text-2xl md:text-3xl font-bold mb-4">Quote Request Submitted!</h1>
-            
             {quoteSubmitted && (
               <div className="bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 rounded-lg p-4 mb-6 mx-auto max-w-xl">
                 <p className="font-medium">Your voice-based quote request was processed successfully!</p>
               </div>
             )}
-            
             <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto">
               Your voice-based quote request has been successfully submitted. We'll prepare your quote and get back to you shortly.
             </p>
-
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-8 max-w-md mx-auto">
               <h2 className="font-semibold mb-4">Your Quote Request Details</h2>
               <div className="flex justify-between mb-2">
@@ -91,7 +75,6 @@ export default function ConfirmationPage() {
                 <span className="text-primary font-medium">Processing</span>
               </div>
             </div>
-
             <div className="mb-8">
               <h3 className="font-semibold mb-3">What happens next?</h3>
               <ol className="text-sm text-left max-w-lg mx-auto space-y-4">
@@ -125,7 +108,6 @@ export default function ConfirmationPage() {
                 </li>
               </ol>
             </div>
-
             <div className="flex flex-col md:flex-row justify-center gap-4">
               <button className="border border-gray-300 dark:border-gray-700 hover:border-primary hover:text-primary font-medium py-2 px-6 rounded-lg transition-colors">
                 Download Request Summary
@@ -138,7 +120,6 @@ export default function ConfirmationPage() {
               </Link>
             </div>
           </div>
-
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 mt-8">
             <h3 className="font-medium mb-4 text-center">How was your experience?</h3>
             <div className="flex justify-center space-x-6 mb-6">
@@ -166,8 +147,6 @@ export default function ConfirmationPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

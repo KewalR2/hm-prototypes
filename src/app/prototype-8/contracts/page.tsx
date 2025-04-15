@@ -1,15 +1,10 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Types
 type ContractStatus = 'draft' | 'pending_signature' | 'signed' | 'active' | 'completed' | 'cancelled';
-
 type Milestone = {
   id: string;
   title: string;
@@ -19,7 +14,6 @@ type Milestone = {
   paymentAmount?: number;
   paymentStatus?: 'unpaid' | 'paid';
 };
-
 type Contract = {
   id: string;
   title: string;
@@ -45,7 +39,6 @@ type Contract = {
   }[];
   notes?: string;
 };
-
 // Sample contracts data
 const SAMPLE_CONTRACTS: Contract[] = [
   {
@@ -264,10 +257,8 @@ const SAMPLE_CONTRACTS: Contract[] = [
     ],
   },
 ];
-
 export default function ContractManagementPage() {
   const router = useRouter();
-  
   // State management
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [filteredContracts, setFilteredContracts] = useState<Contract[]>([]);
@@ -275,11 +266,9 @@ export default function ContractManagementPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentContract, setCurrentContract] = useState<Contract | null>(null);
   const [showContractPreview, setShowContractPreview] = useState<boolean>(false);
-  
   // Initialize contracts from sessionStorage or use sample data
   useEffect(() => {
     const savedContracts = sessionStorage.getItem('smartContracts');
-    
     if (savedContracts) {
       const parsedContracts = JSON.parse(savedContracts);
       setContracts(parsedContracts);
@@ -289,23 +278,19 @@ export default function ContractManagementPage() {
       setFilteredContracts(SAMPLE_CONTRACTS);
     }
   }, []);
-  
   // Save contracts to sessionStorage when they change
   useEffect(() => {
     if (contracts.length > 0) {
       sessionStorage.setItem('smartContracts', JSON.stringify(contracts));
     }
   }, [contracts]);
-  
   // Filter contracts based on status and search query
   useEffect(() => {
     let filtered = [...contracts];
-    
     // Apply status filter
     if (activeFilter !== 'all') {
       filtered = filtered.filter(contract => contract.status === activeFilter);
     }
-    
     // Apply search filter
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
@@ -316,16 +301,13 @@ export default function ContractManagementPage() {
         contract.id.toLowerCase().includes(query)
       );
     }
-    
     setFilteredContracts(filtered);
   }, [activeFilter, searchQuery, contracts]);
-  
   // Open contract preview
   const handleOpenContract = (contract: Contract) => {
     setCurrentContract(contract);
     setShowContractPreview(true);
   };
-  
   // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -333,13 +315,11 @@ export default function ContractManagementPage() {
       currency: 'USD',
     }).format(amount);
   };
-  
   // Format date
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
   // Get status badge color
   const getStatusColor = (status: ContractStatus) => {
     switch (status) {
@@ -359,7 +339,6 @@ export default function ContractManagementPage() {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
-  
   // Get friendly status name
   const getStatusName = (status: ContractStatus) => {
     switch (status) {
@@ -379,7 +358,6 @@ export default function ContractManagementPage() {
         return status;
     }
   };
-  
   // Get milestone status color
   const getMilestoneStatusColor = (status: string) => {
     switch (status) {
@@ -395,7 +373,6 @@ export default function ContractManagementPage() {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
-  
   // Handle contract signing
   const handleSignContract = (contractId: string) => {
     const updatedContracts = contracts.map(contract => {
@@ -409,9 +386,7 @@ export default function ContractManagementPage() {
       }
       return contract;
     });
-    
     setContracts(updatedContracts);
-    
     // Update current contract if it's the one being signed
     if (currentContract && currentContract.id === contractId) {
       const updatedContract = updatedContracts.find(c => c.id === contractId);
@@ -419,11 +394,9 @@ export default function ContractManagementPage() {
         setCurrentContract(updatedContract);
       }
     }
-    
     // Show confirmation
     alert('Contract signed successfully! The contract is now active.');
   };
-  
   // Handle completing a milestone
   const handleCompleteMilestone = (contractId: string, milestoneId: string) => {
     const updatedContracts = contracts.map(contract => {
@@ -438,11 +411,9 @@ export default function ContractManagementPage() {
           }
           return milestone;
         });
-        
         // Check if all milestones are completed to update contract status
         const allCompleted = updatedMilestones.every(m => m.status === 'completed');
         const newStatus = allCompleted ? 'completed' as ContractStatus : contract.status;
-        
         return {
           ...contract,
           milestones: updatedMilestones,
@@ -452,9 +423,7 @@ export default function ContractManagementPage() {
       }
       return contract;
     });
-    
     setContracts(updatedContracts);
-    
     // Update current contract if it's the one being modified
     if (currentContract && currentContract.id === contractId) {
       const updatedContract = updatedContracts.find(c => c.id === contractId);
@@ -462,11 +431,9 @@ export default function ContractManagementPage() {
         setCurrentContract(updatedContract);
       }
     }
-    
     // Show confirmation
     alert('Milestone completed successfully!');
   };
-  
   // Generate contract from quote (would connect to real quote data in a full implementation)
   const handleCreateContractFromQuote = () => {
     const newContract: Contract = {
@@ -532,19 +499,13 @@ export default function ContractManagementPage() {
         },
       ],
     };
-    
     setContracts([...contracts, newContract]);
     setCurrentContract(newContract);
     setShowContractPreview(true);
-    
     // Show confirmation
     alert('New contract created from quote successfully!');
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-8" />
-      
       <main className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8">
@@ -561,7 +522,6 @@ export default function ContractManagementPage() {
             </button>
           </div>
         </div>
-        
         {/* Filters and Search */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -617,7 +577,6 @@ export default function ContractManagementPage() {
                 Completed
               </button>
             </div>
-            
             <div className="w-full md:w-72">
               <div className="relative">
                 <input
@@ -646,13 +605,11 @@ export default function ContractManagementPage() {
             </div>
           </div>
         </div>
-        
         {/* Contract List */}
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden mb-8">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold">Contracts</h2>
           </div>
-          
           {filteredContracts.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-gray-500 dark:text-gray-400 mb-4">No contracts found matching your criteria.</p>
@@ -732,7 +689,6 @@ export default function ContractManagementPage() {
             </div>
           )}
         </div>
-        
         {/* Contract Preview Modal */}
         {showContractPreview && currentContract && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -754,7 +710,6 @@ export default function ContractManagementPage() {
                   </button>
                 </div>
               </div>
-              
               {/* Contract Content */}
               <div className="p-6">
                 {/* Status Bar */}
@@ -764,7 +719,6 @@ export default function ContractManagementPage() {
                       {getStatusName(currentContract.status)}
                     </span>
                   </div>
-                  
                   <div className="flex gap-3">
                     {currentContract.status === 'pending_signature' && (
                       <button
@@ -779,7 +733,6 @@ export default function ContractManagementPage() {
                     </button>
                   </div>
                 </div>
-                
                 {/* Contract Details */}
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   <div>
@@ -823,7 +776,6 @@ export default function ContractManagementPage() {
                       </div>
                     </div>
                   </div>
-                  
                   <div>
                     <h3 className="text-lg font-bold mb-3">Customer Information</h3>
                     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
@@ -833,7 +785,6 @@ export default function ContractManagementPage() {
                     </div>
                   </div>
                 </div>
-                
                 {/* Milestones */}
                 <div className="mb-8">
                   <h3 className="text-lg font-bold mb-3">Milestones & Payments</h3>
@@ -907,7 +858,6 @@ export default function ContractManagementPage() {
                     </p>
                   )}
                 </div>
-                
                 {/* Materials List */}
                 <div className="mb-8">
                   <h3 className="text-lg font-bold mb-3">Materials Included</h3>
@@ -944,7 +894,6 @@ export default function ContractManagementPage() {
                     </table>
                   </div>
                 </div>
-                
                 {/* Digital Signature */}
                 {currentContract.status === 'active' && (
                   <div className="mb-8 border border-green-300 dark:border-green-700 rounded-lg p-6 bg-green-50 dark:bg-green-900/20">
@@ -985,8 +934,6 @@ export default function ContractManagementPage() {
           </div>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 }

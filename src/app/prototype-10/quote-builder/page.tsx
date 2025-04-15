@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Project data structure
 type MaterialItem = {
   id: string;
@@ -14,7 +10,6 @@ type MaterialItem = {
   unit: string;
   price: number;
 };
-
 type ProjectData = {
   projectName: string;
   projectAddress: string;
@@ -27,7 +22,6 @@ type ProjectData = {
   contactPhone: string;
   specialRequirements: string;
 };
-
 export default function QuoteBuilder() {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'guided' | 'form'>('guided');
@@ -51,7 +45,6 @@ export default function QuoteBuilder() {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const formRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   // Material options
   const materialOptions = [
     { id: 'concrete', name: 'Concrete', unit: 'cubic yards', price: 115 },
@@ -63,7 +56,6 @@ export default function QuoteBuilder() {
     { id: 'topsoil', name: 'Topsoil', unit: 'cubic yards', price: 35 },
     { id: 'fill-dirt', name: 'Fill Dirt', unit: 'cubic yards', price: 25 },
   ];
-  
   // Project type options
   const projectTypes = [
     'Residential Construction',
@@ -74,7 +66,6 @@ export default function QuoteBuilder() {
     'Municipal/Public Works',
     'Other'
   ];
-  
   // Timeframe options
   const timeframeOptions = [
     'As soon as possible',
@@ -84,7 +75,6 @@ export default function QuoteBuilder() {
     'More than 1 month',
     'Flexible'
   ];
-
   // Animation variants
   const pageVariants = {
     initial: (direction: string) => ({
@@ -108,7 +98,6 @@ export default function QuoteBuilder() {
       }
     })
   };
-
   const formVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -119,7 +108,6 @@ export default function QuoteBuilder() {
       }
     }
   };
-
   const formItemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -132,7 +120,6 @@ export default function QuoteBuilder() {
       }
     }
   };
-
   // Auto-focus on input when step changes in guided mode
   useEffect(() => {
     if (viewMode === 'guided' && inputRef.current) {
@@ -141,14 +128,12 @@ export default function QuoteBuilder() {
       }, 300);
     }
   }, [currentStep, viewMode]);
-
   // Scroll to top of form in form mode
   useEffect(() => {
     if (viewMode === 'form' && formRef.current) {
       formRef.current.scrollTop = 0;
     }
   }, [viewMode]);
-
   // Load from session storage on initial render
   useEffect(() => {
     const savedData = sessionStorage.getItem('projectData');
@@ -160,17 +145,14 @@ export default function QuoteBuilder() {
       }
     }
   }, []);
-
   // Save to session storage when data changes
   useEffect(() => {
     sessionStorage.setItem('projectData', JSON.stringify(projectData));
   }, [projectData]);
-
   // Validation function
   const validateStep = (step: number): boolean => {
     let newErrors: {[key: string]: string} = {};
     let isValid = true;
-
     switch (step) {
       case 1:
         if (!projectData.projectName.trim()) {
@@ -178,35 +160,30 @@ export default function QuoteBuilder() {
           isValid = false;
         }
         break;
-      
       case 2:
         if (!projectData.projectAddress.trim()) {
           newErrors.projectAddress = 'Project address is required';
           isValid = false;
         }
         break;
-      
       case 3:
         if (!projectData.projectType) {
           newErrors.projectType = 'Project type is required';
           isValid = false;
         }
         break;
-      
       case 4:
         if (projectData.materials.length === 0) {
           newErrors.materials = 'Please select at least one material';
           isValid = false;
         }
         break;
-      
       case 5:
         if (!projectData.timeframe) {
           newErrors.timeframe = 'Timeframe is required';
           isValid = false;
         }
         break;
-      
       case 6:
         if (!projectData.contactName.trim()) {
           newErrors.contactName = 'Contact name is required';
@@ -224,50 +201,40 @@ export default function QuoteBuilder() {
           isValid = false;
         }
         break;
-      
       default:
         break;
     }
-
     setErrors(newErrors);
     return isValid;
   };
-
   // Form validation for full form mode
   const validateForm = (): boolean => {
     let newErrors: {[key: string]: string} = {};
     let isValid = true;
-
     if (!projectData.projectName.trim()) {
       newErrors.projectName = 'Project name is required';
       isValid = false;
     }
-
     if (!projectData.projectAddress.trim()) {
       newErrors.projectAddress = 'Project address is required';
       isValid = false;
     }
-
     if (!projectData.projectType) {
       newErrors.projectType = 'Project type is required';
       isValid = false;
     }
-
     if (projectData.materials.length === 0) {
       newErrors.materials = 'Please select at least one material';
       isValid = false;
     }
-
     if (!projectData.timeframe) {
       newErrors.timeframe = 'Timeframe is required';
       isValid = false;
     }
-
     if (!projectData.contactName.trim()) {
       newErrors.contactName = 'Contact name is required';
       isValid = false;
     }
-
     if (!projectData.contactEmail.trim()) {
       newErrors.contactEmail = 'Email is required';
       isValid = false;
@@ -275,48 +242,38 @@ export default function QuoteBuilder() {
       newErrors.contactEmail = 'Please enter a valid email address';
       isValid = false;
     }
-
     if (!projectData.contactPhone.trim()) {
       newErrors.contactPhone = 'Phone number is required';
       isValid = false;
     }
-
     setErrors(newErrors);
     return isValid;
   };
-
   // Navigation functions
   const handleNext = () => {
     if (!validateStep(currentStep)) return;
-
     setAnimationDirection('forward');
-    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
       handleSubmit();
     }
   };
-
   const handleBack = () => {
     if (currentStep > 1) {
       setAnimationDirection('backward');
       setCurrentStep(currentStep - 1);
     }
   };
-
   const handleSkip = () => {
     setAnimationDirection('forward');
-    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
-
   // Material functions
   const handleAddMaterial = (material: typeof materialOptions[0]) => {
     const existingMaterial = projectData.materials.find(m => m.id === material.id);
-    
     if (existingMaterial) {
       setProjectData({
         ...projectData,
@@ -336,7 +293,6 @@ export default function QuoteBuilder() {
         ]
       });
     }
-
     // Clear any material-related errors
     if (errors.materials) {
       setErrors({
@@ -345,20 +301,17 @@ export default function QuoteBuilder() {
       });
     }
   };
-
   const handleRemoveMaterial = (materialId: string) => {
     setProjectData({
       ...projectData,
       materials: projectData.materials.filter(m => m.id !== materialId)
     });
   };
-
   const handleUpdateQuantity = (materialId: string, quantity: number) => {
     if (quantity <= 0) {
       handleRemoveMaterial(materialId);
       return;
     }
-    
     setProjectData({
       ...projectData,
       materials: projectData.materials.map(m => 
@@ -366,7 +319,6 @@ export default function QuoteBuilder() {
       )
     });
   };
-
   // Form submission
   const handleSubmit = () => {
     // In form mode, validate the entire form
@@ -378,23 +330,18 @@ export default function QuoteBuilder() {
       }
       return;
     }
-
     setLoading(true);
-    
     // Calculate quote total
     const total = projectData.materials.reduce(
       (sum, material) => sum + (material.price * material.quantity), 
       0
     );
-    
     // Generate random quote ID
     const quoteId = 'QT-' + Math.floor(100000 + Math.random() * 900000);
-    
     // Simulate API call with timeout
     setTimeout(() => {
       setQuote({ total, quoteId });
       setLoading(false);
-      
       // Save quote to session storage
       sessionStorage.setItem('latestQuote', JSON.stringify({ 
         ...projectData, 
@@ -405,16 +352,13 @@ export default function QuoteBuilder() {
       }));
     }, 1500);
   };
-
   // Input handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
     setProjectData({
       ...projectData,
       [name]: value
     });
-
     // Clear any errors for this field
     if (errors[name]) {
       setErrors({
@@ -423,12 +367,10 @@ export default function QuoteBuilder() {
       });
     }
   };
-
   // Toggle between guided and form mode
   const toggleViewMode = () => {
     setViewMode(viewMode === 'guided' ? 'form' : 'guided');
   };
-
   // Render guided step content
   const renderStepContent = () => {
     switch (currentStep) {
@@ -447,7 +389,6 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Give your project a name that will help you and your team identify it easily.
             </p>
-            
             <div className="mb-6">
               <input
                 ref={inputRef}
@@ -462,13 +403,11 @@ export default function QuoteBuilder() {
                 <p className="mt-2 text-red-500 error-message">{errors.projectName}</p>
               )}
             </div>
-            
             <div className="text-sm text-gray-500 dark:text-gray-400 italic">
               Examples: "Downtown Office Renovation", "Highway 95 Expansion", "Main Street Sidewalk Project"
             </div>
           </motion.div>
         );
-        
       case 2:
         return (
           <motion.div
@@ -484,7 +423,6 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               This helps us determine delivery logistics, costs, and available suppliers in your area.
             </p>
-            
             <div className="mb-6">
               <textarea
                 name="projectAddress"
@@ -497,13 +435,11 @@ export default function QuoteBuilder() {
                 <p className="mt-2 text-red-500 error-message">{errors.projectAddress}</p>
               )}
             </div>
-            
             <div className="text-sm text-gray-500 dark:text-gray-400 italic">
               Include a specific site address or coordinates for the project location.
             </div>
           </motion.div>
         );
-        
       case 3:
         return (
           <motion.div
@@ -519,11 +455,9 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               This helps us understand your specific material requirements and recommend appropriate options.
             </p>
-            
             {errors.projectType && (
               <p className="mb-4 text-red-500 error-message">{errors.projectType}</p>
             )}
-            
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               {projectTypes.map((type) => (
                 <motion.div
@@ -557,7 +491,6 @@ export default function QuoteBuilder() {
                 </motion.div>
               ))}
             </div>
-            
             {projectData.projectType === 'Other' && (
               <div className="mb-6">
                 <label className="block mb-2 text-sm font-medium">Please specify:</label>
@@ -573,7 +506,6 @@ export default function QuoteBuilder() {
             )}
           </motion.div>
         );
-        
       case 4:
         return (
           <motion.div
@@ -589,15 +521,12 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Select all the materials you need for your project and specify quantities.
             </p>
-            
             {errors.materials && (
               <p className="mb-4 text-red-500 error-message">{errors.materials}</p>
             )}
-            
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               {materialOptions.map((material) => {
                 const isSelected = projectData.materials.some(m => m.id === material.id);
-                
                 return (
                   <motion.div
                     key={material.id}
@@ -631,7 +560,6 @@ export default function QuoteBuilder() {
                 );
               })}
             </div>
-            
             {projectData.materials.length > 0 && (
               <div className="mb-6">
                 <h3 className="font-bold mb-4 text-lg">Selected Materials</h3>
@@ -671,7 +599,6 @@ export default function QuoteBuilder() {
                       </div>
                     </div>
                   ))}
-                  
                   <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                     <span className="font-medium">Estimated Total:</span>
                     <span className="font-bold">${projectData.materials.reduce((sum, material) => sum + (material.price * material.quantity), 0).toFixed(2)}</span>
@@ -681,7 +608,6 @@ export default function QuoteBuilder() {
             )}
           </motion.div>
         );
-        
       case 5:
         return (
           <motion.div
@@ -697,11 +623,9 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               This helps us plan for your delivery needs and ensure timely availability of materials.
             </p>
-            
             {errors.timeframe && (
               <p className="mb-4 text-red-500 error-message">{errors.timeframe}</p>
             )}
-            
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               {timeframeOptions.map((option) => (
                 <motion.div
@@ -735,7 +659,6 @@ export default function QuoteBuilder() {
                 </motion.div>
               ))}
             </div>
-            
             <div className="mb-6">
               <label className="block mb-2 text-sm font-medium">Any special delivery instructions?</label>
               <textarea
@@ -748,7 +671,6 @@ export default function QuoteBuilder() {
             </div>
           </motion.div>
         );
-        
       case 6:
         return (
           <motion.div
@@ -764,7 +686,6 @@ export default function QuoteBuilder() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Please provide contact details for quote confirmation and delivery coordination.
             </p>
-            
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block mb-2 text-sm font-medium">Full Name</label>
@@ -781,7 +702,6 @@ export default function QuoteBuilder() {
                   <p className="mt-2 text-red-500 error-message">{errors.contactName}</p>
                 )}
               </div>
-              
               <div>
                 <label className="block mb-2 text-sm font-medium">Email Address</label>
                 <input
@@ -796,7 +716,6 @@ export default function QuoteBuilder() {
                   <p className="mt-2 text-red-500 error-message">{errors.contactEmail}</p>
                 )}
               </div>
-              
               <div>
                 <label className="block mb-2 text-sm font-medium">Phone Number</label>
                 <input
@@ -812,24 +731,18 @@ export default function QuoteBuilder() {
                 )}
               </div>
             </div>
-            
             <div className="text-sm text-gray-500 dark:text-gray-400 italic">
               We'll send quote confirmation to this email address and may call to verify details if needed.
             </div>
           </motion.div>
         );
-        
       default:
         return null;
     }
   };
-
   // If quote is generated, show confirmation screen
   if (quote) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <Header currentPage="prototype-10" />
-        
         <main className="container mx-auto px-4 py-12">
           <motion.div 
             className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden"
@@ -850,7 +763,6 @@ export default function QuoteBuilder() {
                 </div>
               </div>
             </div>
-            
             <div className="p-6">
               <div className="mb-6">
                 <h3 className="text-lg font-bold mb-2">Quote Details</h3>
@@ -873,7 +785,6 @@ export default function QuoteBuilder() {
                   </div>
                 </div>
               </div>
-              
               <div className="mb-8">
                 <h3 className="text-lg font-bold mb-2">What's Next?</h3>
                 <ol className="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-300">
@@ -882,7 +793,6 @@ export default function QuoteBuilder() {
                   <li>You can track your order status and manage your quote using the tracking page.</li>
                 </ol>
               </div>
-              
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <motion.button
                   onClick={() => router.push('/prototype-10/track-order')}
@@ -904,18 +814,12 @@ export default function QuoteBuilder() {
             </div>
           </motion.div>
         </main>
-        
-        <Footer />
       </div>
     );
   }
-
   // Form-based view mode
   if (viewMode === 'form') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <Header currentPage="prototype-10" />
-        
         <main className="container mx-auto px-4 py-12">
           <div className="max-w-3xl mx-auto">
             {/* Header and Mode Toggle */}
@@ -931,7 +835,6 @@ export default function QuoteBuilder() {
                 Switch to Guided Mode
               </button>
             </div>
-            
             {/* Form Container */}
             <motion.div 
               ref={formRef}
@@ -943,11 +846,9 @@ export default function QuoteBuilder() {
               <div className="text-gray-600 dark:text-gray-300 mb-8">
                 Fill out the form below to request a detailed quote for your project. All fields marked with * are required.
               </div>
-              
               {/* Project Information Section */}
               <motion.div variants={formItemVariants} className="mb-8">
                 <h2 className="text-xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Project Information</h2>
-                
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block mb-2 text-sm font-medium">
@@ -965,7 +866,6 @@ export default function QuoteBuilder() {
                       <p className="mt-2 text-red-500 error-message">{errors.projectName}</p>
                     )}
                   </div>
-                  
                   <div>
                     <label className="block mb-2 text-sm font-medium">
                       Project Type*
@@ -986,7 +886,6 @@ export default function QuoteBuilder() {
                     )}
                   </div>
                 </div>
-                
                 {projectData.projectType === 'Other' && (
                   <div className="mt-4">
                     <label className="block mb-2 text-sm font-medium">
@@ -1002,7 +901,6 @@ export default function QuoteBuilder() {
                     />
                   </div>
                 )}
-                
                 <div className="mt-4">
                   <label className="block mb-2 text-sm font-medium">
                     Project Address*
@@ -1019,19 +917,15 @@ export default function QuoteBuilder() {
                   )}
                 </div>
               </motion.div>
-              
               {/* Materials Section */}
               <motion.div variants={formItemVariants} className="mb-8">
                 <h2 className="text-xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Materials Needed*</h2>
-                
                 {errors.materials && (
                   <p className="mb-4 text-red-500 error-message">{errors.materials}</p>
                 )}
-                
                 <div className="grid md:grid-cols-2 gap-4 mb-6">
                   {materialOptions.map((material) => {
                     const isSelected = projectData.materials.some(m => m.id === material.id);
-                    
                     return (
                       <motion.div
                         key={material.id}
@@ -1065,7 +959,6 @@ export default function QuoteBuilder() {
                     );
                   })}
                 </div>
-                
                 {projectData.materials.length > 0 && (
                   <div>
                     <h3 className="font-bold mb-4 text-md">Selected Materials</h3>
@@ -1105,7 +998,6 @@ export default function QuoteBuilder() {
                           </div>
                         </div>
                       ))}
-                      
                       <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                         <span className="font-medium">Estimated Total:</span>
                         <span className="font-bold">${projectData.materials.reduce((sum, material) => sum + (material.price * material.quantity), 0).toFixed(2)}</span>
@@ -1114,11 +1006,9 @@ export default function QuoteBuilder() {
                   </div>
                 )}
               </motion.div>
-              
               {/* Delivery Information */}
               <motion.div variants={formItemVariants} className="mb-8">
                 <h2 className="text-xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Delivery Information</h2>
-                
                 <div>
                   <label className="block mb-2 text-sm font-medium">
                     Timeframe*
@@ -1138,7 +1028,6 @@ export default function QuoteBuilder() {
                     <p className="mt-2 text-red-500 error-message">{errors.timeframe}</p>
                   )}
                 </div>
-                
                 <div className="mt-4">
                   <label className="block mb-2 text-sm font-medium">
                     Special Delivery Instructions
@@ -1152,11 +1041,9 @@ export default function QuoteBuilder() {
                   />
                 </div>
               </motion.div>
-              
               {/* Contact Information */}
               <motion.div variants={formItemVariants} className="mb-8">
                 <h2 className="text-xl font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Contact Information</h2>
-                
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block mb-2 text-sm font-medium">
@@ -1174,7 +1061,6 @@ export default function QuoteBuilder() {
                       <p className="mt-2 text-red-500 error-message">{errors.contactName}</p>
                     )}
                   </div>
-                  
                   <div>
                     <label className="block mb-2 text-sm font-medium">
                       Phone Number*
@@ -1192,7 +1078,6 @@ export default function QuoteBuilder() {
                     )}
                   </div>
                 </div>
-                
                 <div className="mt-4">
                   <label className="block mb-2 text-sm font-medium">
                     Email Address*
@@ -1210,12 +1095,10 @@ export default function QuoteBuilder() {
                   )}
                 </div>
               </motion.div>
-              
               <div className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                 By submitting this form, you agree to our Terms of Service and Privacy Policy.
               </div>
             </motion.div>
-            
             {/* Form Submission */}
             <div className="flex justify-center">
               <motion.button
@@ -1243,17 +1126,11 @@ export default function QuoteBuilder() {
             </div>
           </div>
         </main>
-        
-        <Footer />
       </div>
     );
   }
-
   // Guided mode (default)
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-10" />
-      
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           {/* Header and Mode Toggle */}
@@ -1269,7 +1146,6 @@ export default function QuoteBuilder() {
               Switch to Form View
             </button>
           </div>
-          
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -1285,7 +1161,6 @@ export default function QuoteBuilder() {
               <span>Complete</span>
             </div>
           </div>
-          
           {/* Question Card */}
           <motion.div 
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-8"
@@ -1297,7 +1172,6 @@ export default function QuoteBuilder() {
               {renderStepContent()}
             </AnimatePresence>
           </motion.div>
-          
           {/* Navigation Buttons */}
           <div className="flex justify-between">
             <motion.button
@@ -1313,7 +1187,6 @@ export default function QuoteBuilder() {
             >
               Back
             </motion.button>
-            
             <div className="flex space-x-3">
               {currentStep < totalSteps && (
                 <motion.button
@@ -1325,7 +1198,6 @@ export default function QuoteBuilder() {
                   Skip
                 </motion.button>
               )}
-              
               <motion.button
                 onClick={handleNext}
                 disabled={loading}
@@ -1352,8 +1224,6 @@ export default function QuoteBuilder() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

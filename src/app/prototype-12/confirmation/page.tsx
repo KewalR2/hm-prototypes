@@ -1,16 +1,11 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 export default function ConfirmationPage() {
   const router = useRouter();
   const [quoteData, setQuoteData] = useState<any>(null);
   const [quoteNumber, setQuoteNumber] = useState('');
-  
   useEffect(() => {
     // Retrieve quote data from session storage
     const storedData = sessionStorage.getItem('aiQuoteData');
@@ -24,21 +19,16 @@ export default function ConfirmationPage() {
       }
     }
   }, []);
-
   // Go back to home page
   const goToHome = () => {
     router.push('/');
   };
-  
   // Start a new quote
   const startNewQuote = () => {
     router.push('/prototype-12/quote');
   };
-
   if (!quoteData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <Header currentPage="prototype-12" />
         <main className="container mx-auto px-4 py-12 text-center">
           <h1 className="text-3xl font-bold mb-6">Quote Data Not Found</h1>
           <p className="mb-8">We couldn't find your quote data. Let's start a new quote.</p>
@@ -49,15 +39,10 @@ export default function ConfirmationPage() {
             Start New Quote
           </button>
         </main>
-        <Footer />
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-12" />
-      
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           {/* Success Header */}
@@ -72,11 +57,9 @@ export default function ConfirmationPage() {
             <h1 className="text-3xl font-bold">Quote Submitted Successfully!</h1>
             <p className="text-lg mt-2">Your quote request has been received and is being processed.</p>
           </div>
-          
           {/* Quote Details */}
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">Quote Details</h2>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Project Information</h3>
@@ -99,7 +82,6 @@ export default function ConfirmationPage() {
                   </div>
                 </div>
               </div>
-              
               <div>
                 <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
                 <div className="space-y-2">
@@ -118,7 +100,6 @@ export default function ConfirmationPage() {
                 </div>
               </div>
             </div>
-            
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-3">Selected Materials</h3>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden">
@@ -150,7 +131,6 @@ export default function ConfirmationPage() {
                 </table>
               </div>
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Supplier</h3>
@@ -177,7 +157,6 @@ export default function ConfirmationPage() {
                   )}
                 </div>
               </div>
-              
               <div>
                 <h3 className="text-lg font-semibold mb-3">Delivery Information</h3>
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -200,7 +179,6 @@ export default function ConfirmationPage() {
                 </div>
               </div>
             </div>
-            
             {/* Quote Reference */}
             <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg mb-8">
               <div className="flex items-center">
@@ -216,7 +194,6 @@ export default function ConfirmationPage() {
                 You will receive a detailed quote via email within 24 hours. Our team may contact you for any additional information needed.
               </p>
             </div>
-            
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={goToHome}
@@ -234,8 +211,6 @@ export default function ConfirmationPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

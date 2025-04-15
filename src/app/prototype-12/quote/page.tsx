@@ -1,10 +1,6 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 type Project = {
   type: string;
   location: string;
@@ -13,7 +9,6 @@ type Project = {
   budget: string;
   requirements: string[];
 };
-
 type Material = {
   id: string;
   name: string;
@@ -23,7 +18,6 @@ type Material = {
   quantity: number;
   selected: boolean;
 };
-
 type Plant = {
   id: string;
   name: string;
@@ -32,7 +26,6 @@ type Plant = {
   selected: boolean;
   rating: number;
 };
-
 type QuoteState = {
   currentStep: 'project-info' | 'materials' | 'delivery' | 'review';
   project: Project;
@@ -45,7 +38,6 @@ type QuoteState = {
   contactEmail: string;
   contactPhone: string;
 };
-
 export default function QuotePage() {
   const router = useRouter();
   const [state, setState] = useState<QuoteState>({
@@ -67,7 +59,6 @@ export default function QuotePage() {
     contactEmail: '',
     contactPhone: ''
   });
-
   // Handle project type selection
   const handleProjectTypeChange = (type: string) => {
     setState(prev => ({
@@ -78,7 +69,6 @@ export default function QuotePage() {
       }
     }));
   };
-
   // Handle input changes for project info
   const handleProjectInputChange = (field: keyof Project, value: string) => {
     setState(prev => ({
@@ -89,7 +79,6 @@ export default function QuotePage() {
       }
     }));
   };
-
   // Add a requirement to the project
   const addRequirement = (requirement: string) => {
     if (!requirement) return;
@@ -101,7 +90,6 @@ export default function QuotePage() {
       }
     }));
   };
-
   // Remove a requirement from the project
   const removeRequirement = (index: number) => {
     setState(prev => ({
@@ -112,13 +100,11 @@ export default function QuotePage() {
       }
     }));
   };
-
   // Submit project info and generate material recommendations
   const submitProjectInfo = () => {
     // Generate materials based on project type
     const materials = generateMaterials(state.project.type, state.project.size);
     const plants = generatePlants(state.project.location);
-    
     setState(prev => ({
       ...prev,
       materials,
@@ -126,12 +112,10 @@ export default function QuotePage() {
       currentStep: 'materials'
     }));
   };
-
   // Generate materials based on project type and size
   const generateMaterials = (projectType: string, projectSize: string) => {
     let baseMaterials: Material[] = [];
     let sizeFactor = 1;
-    
     // Apply size multiplier based on project size
     if (projectSize.includes('small')) {
       sizeFactor = 0.7;
@@ -142,7 +126,6 @@ export default function QuotePage() {
     } else {
       sizeFactor = 1; // Default for unknown sizes
     }
-
     // Generate materials based on project type
     if (projectType.toLowerCase().includes('driveway')) {
       baseMaterials = [
@@ -371,10 +354,8 @@ export default function QuotePage() {
         }
       ];
     }
-
     // Add some adaptive materials based on requirements
     const additionalMaterials: Material[] = [];
-    
     state.project.requirements.forEach(req => {
       if (req.toLowerCase().includes('drain') || req.toLowerCase().includes('water')) {
         additionalMaterials.push({
@@ -387,7 +368,6 @@ export default function QuotePage() {
           selected: true
         });
       }
-      
       if (req.toLowerCase().includes('eco') || req.toLowerCase().includes('environment') || req.toLowerCase().includes('green')) {
         additionalMaterials.push({
           id: `additional-${additionalMaterials.length + 1}`,
@@ -399,7 +379,6 @@ export default function QuotePage() {
           selected: true
         });
       }
-      
       if (req.toLowerCase().includes('color') || req.toLowerCase().includes('decorative') || req.toLowerCase().includes('aesthetic')) {
         additionalMaterials.push({
           id: `additional-${additionalMaterials.length + 1}`,
@@ -412,15 +391,12 @@ export default function QuotePage() {
         });
       }
     });
-
     return [...baseMaterials, ...additionalMaterials];
   };
-
   // Generate plants based on project location
   const generatePlants = (location: string) => {
     const locationLower = location.toLowerCase();
     let plants: Plant[] = [];
-    
     if (locationLower.includes('new york') || locationLower.includes('ny')) {
       plants = [
         { id: 'p1', name: 'NYC Materials Supply', location: 'Queens, NY', distance: '8.4 miles', rating: 4.7, selected: true },
@@ -453,10 +429,8 @@ export default function QuotePage() {
         { id: 'p3', name: 'Local Materials Co.', location: 'Near your location', distance: '12.5 miles', rating: 4.3, selected: false },
       ];
     }
-    
     return plants;
   };
-
   // Toggle material selection
   const toggleMaterial = (id: string) => {
     setState(prev => ({
@@ -466,7 +440,6 @@ export default function QuotePage() {
       )
     }));
   };
-
   // Update material quantity
   const updateMaterialQuantity = (id: string, quantity: number) => {
     setState(prev => ({
@@ -476,7 +449,6 @@ export default function QuotePage() {
       )
     }));
   };
-
   // Select a plant
   const selectPlant = (id: string) => {
     setState(prev => ({
@@ -486,7 +458,6 @@ export default function QuotePage() {
       )
     }));
   };
-
   // Save materials and plants, proceed to delivery
   const saveSelectionsProceedToDelivery = () => {
     setState(prev => ({
@@ -494,7 +465,6 @@ export default function QuotePage() {
       currentStep: 'delivery'
     }));
   };
-
   // Handle input changes for delivery and contact info
   const handleInputChange = (field: keyof Omit<QuoteState, 'currentStep' | 'project' | 'materials' | 'plants'>, value: string) => {
     setState(prev => ({
@@ -502,7 +472,6 @@ export default function QuotePage() {
       [field]: value
     }));
   };
-
   // Save delivery info and proceed to review
   const saveDeliveryProceedToReview = () => {
     setState(prev => ({
@@ -510,7 +479,6 @@ export default function QuotePage() {
       currentStep: 'review'
     }));
   };
-
   // Submit final quote
   const submitQuote = () => {
     // Save the quote data to session storage
@@ -527,11 +495,9 @@ export default function QuotePage() {
         phone: state.contactPhone
       }
     }));
-    
     // Navigate to confirmation page
     router.push('/prototype-12/confirmation');
   };
-
   // Calculate total price
   const calculateTotal = () => {
     return state.materials
@@ -540,15 +506,10 @@ export default function QuotePage() {
         return total + (material.quantity * material.unitPrice);
       }, 0);
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-12" />
-      
       <main className="container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="text-3xl font-bold mb-2">Intelligent Adaptive Quoting</h1>
         <p className="text-gray-600 dark:text-gray-300 mb-8">Our system adapts to your project needs in real-time</p>
-        
         {/* Progress Indicator */}
         <div className="mb-10">
           <div className="flex justify-between mb-2">
@@ -573,7 +534,6 @@ export default function QuotePage() {
             }}></div>
           </div>
         </div>
-        
         {/* Project Information Step */}
         {state.currentStep === 'project-info' && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -581,7 +541,6 @@ export default function QuotePage() {
               <h2 className="text-xl font-semibold">Tell us about your project</h2>
               <p className="text-gray-600 dark:text-gray-400 mt-1">Our system will adapt materials and recommendations based on your specific project</p>
             </div>
-            
             <div className="p-6 space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">What type of project are you working on?</label>
@@ -597,7 +556,6 @@ export default function QuotePage() {
                   ))}
                 </div>
               </div>
-              
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Location</label>
@@ -609,7 +567,6 @@ export default function QuotePage() {
                     className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                   />
                 </div>
-                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Size</label>
                   <select
@@ -625,7 +582,6 @@ export default function QuotePage() {
                   </select>
                 </div>
               </div>
-              
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Timeline</label>
@@ -641,7 +597,6 @@ export default function QuotePage() {
                     <option value="future">More than 2 months away</option>
                   </select>
                 </div>
-                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Budget Range</label>
                   <select
@@ -657,7 +612,6 @@ export default function QuotePage() {
                   </select>
                 </div>
               </div>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Special Requirements or Considerations</label>
                 <div className="flex items-center">
@@ -700,7 +654,6 @@ export default function QuotePage() {
                 </div>
               </div>
             </div>
-            
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
               <button 
                 onClick={submitProjectInfo}
@@ -712,7 +665,6 @@ export default function QuotePage() {
             </div>
           </div>
         )}
-        
         {/* Materials and Plants Step */}
         {state.currentStep === 'materials' && (
           <div className="space-y-6">
@@ -724,7 +676,6 @@ export default function QuotePage() {
                   Based on your {state.project.type} project in {state.project.location}, we recommend the following materials
                 </p>
               </div>
-              
               <div className="p-6">
                 <div className="space-y-4 mb-6">
                   {state.materials.map((material) => (
@@ -773,7 +724,6 @@ export default function QuotePage() {
                 </div>
               </div>
             </div>
-            
             {/* Plants Selection */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
               <div className="border-b border-gray-200 dark:border-gray-700 p-6">
@@ -782,7 +732,6 @@ export default function QuotePage() {
                   Plants close to your location in {state.project.location} that can supply your materials
                 </p>
               </div>
-              
               <div className="p-6">
                 <div className="space-y-4">
                   {state.plants.map((plant) => (
@@ -819,7 +768,6 @@ export default function QuotePage() {
                 </div>
               </div>
             </div>
-            
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
               <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <div className="text-xl font-bold">
@@ -836,7 +784,6 @@ export default function QuotePage() {
             </div>
           </div>
         )}
-        
         {/* Delivery and Contact Step */}
         {state.currentStep === 'delivery' && (
           <div className="space-y-6">
@@ -847,7 +794,6 @@ export default function QuotePage() {
                   When and how would you like your materials delivered?
                 </p>
               </div>
-              
               <div className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -859,7 +805,6 @@ export default function QuotePage() {
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preferred Time</label>
                     <select
@@ -874,7 +819,6 @@ export default function QuotePage() {
                     </select>
                   </div>
                 </div>
-                
                 <div className="mt-6">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Special Instructions</label>
                   <textarea
@@ -887,7 +831,6 @@ export default function QuotePage() {
                 </div>
               </div>
             </div>
-            
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
               <div className="border-b border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-semibold">Contact Information</h2>
@@ -895,7 +838,6 @@ export default function QuotePage() {
                   Your contact details for this quote
                 </p>
               </div>
-              
               <div className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -908,7 +850,6 @@ export default function QuotePage() {
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                     />
                   </div>
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                     <input 
@@ -920,7 +861,6 @@ export default function QuotePage() {
                     />
                   </div>
                 </div>
-                
                 <div className="mt-6">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
                   <input 
@@ -932,7 +872,6 @@ export default function QuotePage() {
                   />
                 </div>
               </div>
-              
               <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
                 <button 
                   onClick={saveDeliveryProceedToReview}
@@ -945,7 +884,6 @@ export default function QuotePage() {
             </div>
           </div>
         )}
-        
         {/* Review Step */}
         {state.currentStep === 'review' && (
           <div className="space-y-6">
@@ -956,7 +894,6 @@ export default function QuotePage() {
                   Review your quote before submission
                 </p>
               </div>
-              
               <div className="p-6">
                 <div className="space-y-6">
                   <div>
@@ -994,7 +931,6 @@ export default function QuotePage() {
                       )}
                     </div>
                   </div>
-                  
                   <div>
                     <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Materials</h3>
                     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden">
@@ -1024,7 +960,6 @@ export default function QuotePage() {
                       </table>
                     </div>
                   </div>
-                  
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Supplier</h3>
@@ -1050,7 +985,6 @@ export default function QuotePage() {
                         </div>
                       </div>
                     </div>
-                    
                     <div>
                       <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Delivery Information</h3>
                       <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
@@ -1073,7 +1007,6 @@ export default function QuotePage() {
                       </div>
                     </div>
                   </div>
-                  
                   <div>
                     <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Information</h3>
                     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
@@ -1095,7 +1028,6 @@ export default function QuotePage() {
                   </div>
                 </div>
               </div>
-              
               <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <button 
                   onClick={() => setState(prev => ({ ...prev, currentStep: 'delivery' }))}
@@ -1114,8 +1046,5 @@ export default function QuotePage() {
           </div>
         )}
       </main>
-
-      <Footer />
-    </div>
   );
 }

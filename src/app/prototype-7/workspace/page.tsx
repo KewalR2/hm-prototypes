@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // User types
 type User = {
   id: string;
@@ -14,7 +10,6 @@ type User = {
   role: 'admin' | 'editor' | 'viewer';
   department: string;
 };
-
 // Message and activity types
 type Message = {
   id: string;
@@ -24,7 +19,6 @@ type Message = {
   replyTo?: string;
   attachments?: string[];
 };
-
 type Activity = {
   id: string;
   userId: string;
@@ -32,7 +26,6 @@ type Activity = {
   target: string;
   timestamp: number;
 };
-
 // Material and quote types
 type Material = {
   id: string;
@@ -45,7 +38,6 @@ type Material = {
   lastEditedBy: string;
   comments: Comment[];
 };
-
 type Comment = {
   id: string;
   userId: string;
@@ -53,7 +45,6 @@ type Comment = {
   timestamp: number;
   resolved: boolean;
 };
-
 // Sample data
 const USERS: User[] = [
   { id: 'user1', name: 'John Smith', avatar: '👨‍💼', role: 'admin', department: 'Project Management' },
@@ -62,7 +53,6 @@ const USERS: User[] = [
   { id: 'user4', name: 'Jessica Lee', avatar: '👩‍🔧', role: 'viewer', department: 'Engineering' },
   { id: 'user5', name: 'Robert Taylor', avatar: '👨‍🏫', role: 'viewer', department: 'Finance' },
 ];
-
 const SAMPLE_MATERIALS: Material[] = [
   {
     id: 'mat1',
@@ -151,7 +141,6 @@ const SAMPLE_MATERIALS: Material[] = [
     comments: [],
   },
 ];
-
 const INITIAL_ACTIVITIES: Activity[] = [
   {
     id: 'act1', 
@@ -252,7 +241,6 @@ const INITIAL_ACTIVITIES: Activity[] = [
     timestamp: Date.now() - 240000
   },
 ];
-
 const INITIAL_MESSAGES: Message[] = [
   {
     id: 'msg1',
@@ -291,7 +279,6 @@ const INITIAL_MESSAGES: Message[] = [
     timestamp: Date.now() - 3600000 * 4.8,
   },
 ];
-
 export default function CollaborativeWorkspace() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User>(USERS[0]);
@@ -302,7 +289,6 @@ export default function CollaborativeWorkspace() {
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [newComment, setNewComment] = useState({ materialId: '', content: '' });
-  
   // For new material form
   const [showNewMaterialForm, setShowNewMaterialForm] = useState(false);
   const [newMaterial, setNewMaterial] = useState<Partial<Material>>({
@@ -312,16 +298,13 @@ export default function CollaborativeWorkspace() {
     quantity: 0,
     unitPrice: 0,
   });
-  
   const chatEndRef = useRef<HTMLDivElement>(null);
-  
   // Auto scroll to bottom of chat
   useEffect(() => {
     if (activeTab === 'chat' && chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, activeTab]);
-  
   // Load data from session storage
   useEffect(() => {
     const savedWorkspace = sessionStorage.getItem('collaborativeWorkspace');
@@ -332,7 +315,6 @@ export default function CollaborativeWorkspace() {
       setActivities(data.activities || INITIAL_ACTIVITIES);
     }
   }, []);
-  
   // Save data to session storage
   const saveToSessionStorage = () => {
     const workspaceData = {
@@ -342,23 +324,19 @@ export default function CollaborativeWorkspace() {
     };
     sessionStorage.setItem('collaborativeWorkspace', JSON.stringify(workspaceData));
   };
-  
   // Effect to save data when state changes
   useEffect(() => {
     saveToSessionStorage();
   }, [materials, messages, activities]);
-  
   // Helper to get user by ID
   const getUserById = (userId: string): User => {
     return USERS.find(user => user.id === userId) || USERS[0];
   };
-  
   // Handle user change
   const handleUserChange = (userId: string) => {
     const user = USERS.find(u => u.id === userId);
     if (user) {
       setCurrentUser(user);
-      
       // Add activity for user change
       const newActivity: Activity = {
         id: `act${activities.length + 1}`,
@@ -367,25 +345,20 @@ export default function CollaborativeWorkspace() {
         target: 'workspace',
         timestamp: Date.now(),
       };
-      
       setActivities([...activities, newActivity]);
     }
   };
-  
   // Handle material edit
   const handleEditMaterial = (material: Material) => {
     setEditingMaterial(material);
   };
-  
   // Handle save material edit
   const handleSaveMaterial = () => {
     if (editingMaterial) {
       const updatedMaterials = materials.map(mat => 
         mat.id === editingMaterial.id ? { ...editingMaterial, lastEditedBy: currentUser.id } : mat
       );
-      
       setMaterials(updatedMaterials);
-      
       // Add activity
       const newActivity: Activity = {
         id: `act${activities.length + 1}`,
@@ -394,17 +367,14 @@ export default function CollaborativeWorkspace() {
         target: editingMaterial.name,
         timestamp: Date.now(),
       };
-      
       setActivities([...activities, newActivity]);
       setEditingMaterial(null);
     }
   };
-  
   // Handle cancel material edit
   const handleCancelEdit = () => {
     setEditingMaterial(null);
   };
-  
   // Handle status change
   const handleStatusChange = (materialId: string, status: 'pending' | 'approved' | 'rejected' | 'discussion') => {
     const updatedMaterials = materials.map(mat => {
@@ -413,9 +383,7 @@ export default function CollaborativeWorkspace() {
       }
       return mat;
     });
-    
     const material = materials.find(m => m.id === materialId);
-    
     if (material) {
       // Add activity
       const newActivity: Activity = {
@@ -425,17 +393,13 @@ export default function CollaborativeWorkspace() {
         target: material.name,
         timestamp: Date.now(),
       };
-      
       setActivities([...activities, newActivity]);
     }
-    
     setMaterials(updatedMaterials);
   };
-  
   // Handle adding a comment
   const handleAddComment = (materialId: string) => {
     if (newComment.content.trim() === '') return;
-    
     const updatedMaterials = materials.map(mat => {
       if (mat.id === materialId) {
         const newCommentObj: Comment = {
@@ -445,7 +409,6 @@ export default function CollaborativeWorkspace() {
           timestamp: Date.now(),
           resolved: false,
         };
-        
         return { 
           ...mat, 
           comments: [...mat.comments, newCommentObj],
@@ -454,9 +417,7 @@ export default function CollaborativeWorkspace() {
       }
       return mat;
     });
-    
     const material = materials.find(m => m.id === materialId);
-    
     if (material) {
       // Add activity
       const newActivity: Activity = {
@@ -466,14 +427,11 @@ export default function CollaborativeWorkspace() {
         target: material.name,
         timestamp: Date.now(),
       };
-      
       setActivities([...activities, newActivity]);
     }
-    
     setMaterials(updatedMaterials);
     setNewComment({ materialId: '', content: '' });
   };
-  
   // Handle resolving a comment
   const handleResolveComment = (materialId: string, commentId: string) => {
     const updatedMaterials = materials.map(mat => {
@@ -484,10 +442,8 @@ export default function CollaborativeWorkspace() {
           }
           return com;
         });
-        
         // Check if all comments are resolved
         const allResolved = updatedComments.every(com => com.resolved);
-        
         return { 
           ...mat, 
           comments: updatedComments,
@@ -496,9 +452,7 @@ export default function CollaborativeWorkspace() {
       }
       return mat;
     });
-    
     const material = materials.find(m => m.id === materialId);
-    
     if (material) {
       // Add activity
       const newActivity: Activity = {
@@ -508,27 +462,21 @@ export default function CollaborativeWorkspace() {
         target: material.name,
         timestamp: Date.now(),
       };
-      
       setActivities([...activities, newActivity]);
     }
-    
     setMaterials(updatedMaterials);
   };
-  
   // Handle sending a message
   const handleSendMessage = () => {
     if (newMessage.trim() === '') return;
-    
     const message: Message = {
       id: `msg${Date.now()}`,
       userId: currentUser.id,
       content: newMessage,
       timestamp: Date.now(),
     };
-    
     setMessages([...messages, message]);
     setNewMessage('');
-    
     // Add activity
     const newActivity: Activity = {
       id: `act${activities.length + 1}`,
@@ -537,16 +485,13 @@ export default function CollaborativeWorkspace() {
       target: 'chat',
       timestamp: Date.now(),
     };
-    
     setActivities([...activities, newActivity]);
   };
-  
   // Handle adding new material
   const handleAddNewMaterial = () => {
     if (!newMaterial.name || !newMaterial.unit || !newMaterial.quantity || !newMaterial.unitPrice) {
       return; // Simple validation
     }
-    
     const material: Material = {
       id: `mat${Date.now()}`,
       name: newMaterial.name,
@@ -558,9 +503,7 @@ export default function CollaborativeWorkspace() {
       lastEditedBy: currentUser.id,
       comments: [],
     };
-    
     setMaterials([...materials, material]);
-    
     // Add activity
     const newActivity: Activity = {
       id: `act${activities.length + 1}`,
@@ -569,9 +512,7 @@ export default function CollaborativeWorkspace() {
       target: material.name,
       timestamp: Date.now(),
     };
-    
     setActivities([...activities, newActivity]);
-    
     // Reset form
     setNewMaterial({
       name: '',
@@ -582,13 +523,11 @@ export default function CollaborativeWorkspace() {
     });
     setShowNewMaterialForm(false);
   };
-  
   // Format timestamp
   const formatTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp);
     return date.toLocaleString();
   };
-  
   // Format compact timestamp
   const formatCompactTimestamp = (timestamp: number): string => {
     const now = new Date();
@@ -598,7 +537,6 @@ export default function CollaborativeWorkspace() {
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-    
     if (diffDay > 0) {
       return `${diffDay}d ago`;
     } else if (diffHour > 0) {
@@ -609,31 +547,23 @@ export default function CollaborativeWorkspace() {
       return 'Just now';
     }
   };
-  
   // Calculate total price
   const calculateTotal = (): number => {
     return materials.reduce((sum, mat) => sum + (mat.quantity * mat.unitPrice), 0);
   };
-  
   // Count materials by status
   const countByStatus = (status: 'pending' | 'approved' | 'rejected' | 'discussion'): number => {
     return materials.filter(mat => mat.status === status).length;
   };
-  
   // Check if user has edit permissions
   const canEdit = (): boolean => {
     return currentUser.role === 'admin' || currentUser.role === 'editor';
   };
-  
   // Check if user has approval permissions
   const canApprove = (): boolean => {
     return currentUser.role === 'admin';
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-7" />
-      
       <main className="container mx-auto px-4 py-8">
         {/* Workspace Header */}
         <div className="mb-8 bg-white dark:bg-gray-900 rounded-xl shadow-sm p-6">
@@ -642,7 +572,6 @@ export default function CollaborativeWorkspace() {
               <h1 className="text-2xl font-bold mb-2">Main Street Construction Project</h1>
               <p className="text-gray-600 dark:text-gray-300">Collaborative Quote Workspace</p>
             </div>
-            
             <div className="mt-4 md:mt-0">
               <div className="flex items-center space-x-2">
                 <span className="text-gray-600 dark:text-gray-300">Working as:</span>
@@ -660,7 +589,6 @@ export default function CollaborativeWorkspace() {
               </div>
             </div>
           </div>
-          
           <div className="mt-6 flex flex-wrap gap-3">
             <div className="flex items-center px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-md">
               <span className="font-medium mr-2">Quote Status:</span>
@@ -684,7 +612,6 @@ export default function CollaborativeWorkspace() {
             </div>
           </div>
         </div>
-        
         {/* Tab Buttons */}
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
           <button
@@ -718,7 +645,6 @@ export default function CollaborativeWorkspace() {
             Activity Log
           </button>
         </div>
-        
         {/* Materials Tab */}
         {activeTab === 'materials' && (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden">
@@ -733,7 +659,6 @@ export default function CollaborativeWorkspace() {
                 </button>
               )}
             </div>
-            
             {/* New Material Form */}
             {showNewMaterialForm && (
               <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
@@ -801,7 +726,6 @@ export default function CollaborativeWorkspace() {
                 </div>
               </div>
             )}
-            
             {/* Materials List */}
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {materials.map((material) => (
@@ -897,7 +821,6 @@ export default function CollaborativeWorkspace() {
                             Last edited by {getUserById(material.lastEditedBy).name}
                           </p>
                         </div>
-                        
                         {/* Action Buttons */}
                         {(canEdit() || canApprove()) && (
                           <div className="flex flex-wrap gap-2">
@@ -936,11 +859,9 @@ export default function CollaborativeWorkspace() {
                           </div>
                         )}
                       </div>
-                      
                       {/* Comments Section */}
                       <div className="mt-4">
                         <h4 className="font-medium mb-2">Comments</h4>
-                        
                         {material.comments.length === 0 ? (
                           <p className="text-gray-500 dark:text-gray-400 text-sm italic">No comments yet.</p>
                         ) : (
@@ -971,7 +892,6 @@ export default function CollaborativeWorkspace() {
                             ))}
                           </div>
                         )}
-                        
                         {/* Add Comment Form */}
                         <div className="mt-3 flex">
                           <input
@@ -994,7 +914,6 @@ export default function CollaborativeWorkspace() {
                   )}
                 </div>
               ))}
-              
               {materials.length === 0 && (
                 <div className="p-6 text-center text-gray-500 dark:text-gray-400">
                   <p>No materials added yet. Click "Add Material" to get started.</p>
@@ -1003,14 +922,12 @@ export default function CollaborativeWorkspace() {
             </div>
           </div>
         )}
-        
         {/* Chat Tab */}
         {activeTab === 'chat' && (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden flex flex-col h-[600px]">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold">Team Chat</h2>
             </div>
-            
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4">
               {messages.length === 0 ? (
@@ -1022,7 +939,6 @@ export default function CollaborativeWorkspace() {
                   {messages.map((message) => {
                     const user = getUserById(message.userId);
                     const isCurrentUser = user.id === currentUser.id;
-                    
                     return (
                       <div key={message.id} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[80%] rounded-lg p-3 ${
@@ -1047,7 +963,6 @@ export default function CollaborativeWorkspace() {
                 </div>
               )}
             </div>
-            
             {/* Chat Input */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex">
@@ -1069,14 +984,12 @@ export default function CollaborativeWorkspace() {
             </div>
           </div>
         )}
-        
         {/* Activity Tab */}
         {activeTab === 'activity' && (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold">Activity Log</h2>
             </div>
-            
             {/* Activity List */}
             <div className="p-4">
               {activities.length === 0 ? (
@@ -1084,11 +997,9 @@ export default function CollaborativeWorkspace() {
               ) : (
                 <div className="relative">
                   <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
-                  
                   <div className="space-y-4">
                     {[...activities].reverse().map((activity) => {
                       const user = getUserById(activity.userId);
-                      
                       return (
                         <div key={activity.id} className="relative flex items-start pl-8">
                           <div className="absolute left-0 mt-1.5 w-2.5 h-2.5 rounded-full bg-primary"></div>
@@ -1112,7 +1023,6 @@ export default function CollaborativeWorkspace() {
             </div>
           </div>
         )}
-        
         {/* Actions Bar */}
         <div className="mt-8 flex flex-wrap gap-4 justify-end">
           <button
@@ -1124,7 +1034,6 @@ export default function CollaborativeWorkspace() {
           >
             Exit Workspace
           </button>
-          
           <button
             onClick={() => {
               // In a real app, this would finalize and submit the quote
@@ -1136,8 +1045,6 @@ export default function CollaborativeWorkspace() {
           </button>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

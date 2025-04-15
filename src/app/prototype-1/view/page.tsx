@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 export default function QuoteViewPage() {
   const router = useRouter();
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -66,15 +62,12 @@ export default function QuoteViewPage() {
       'Additional fees may apply for site access limitations'
     ]
   });
-
   // Check if this is immediately after a form submission
   useEffect(() => {
     const formData = sessionStorage.getItem('quoteRequestData');
-    
     if (formData) {
       try {
         const parsedData = JSON.parse(formData);
-        
         // Update the quote data with form submission data
         setQuoteData(prevData => ({
           ...prevData,
@@ -117,9 +110,7 @@ export default function QuoteViewPage() {
             fee: 1250.00
           }
         }));
-        
         setSubmissionSuccess(true);
-        
         // Clear the form data from session storage after 1 second
         setTimeout(() => {
           sessionStorage.removeItem('quoteRequestData');
@@ -129,7 +120,6 @@ export default function QuoteViewPage() {
       }
     }
   }, []);
-
   // Helper functions to convert form values to display values
   function getMaterialName(materialCode) {
     const materials = {
@@ -144,7 +134,6 @@ export default function QuoteViewPage() {
     };
     return materials[materialCode] || 'Crushed Stone';
   }
-
   function getUnitName(unitCode) {
     const units = {
       'tons': 'Tons',
@@ -153,7 +142,6 @@ export default function QuoteViewPage() {
     };
     return units[unitCode] || 'Tons';
   }
-
   function getTimeWindow(timeCode) {
     const timeWindows = {
       'morning': 'Morning (8am - 12pm)',
@@ -163,23 +151,19 @@ export default function QuoteViewPage() {
     };
     return timeWindows[timeCode] || 'Morning (8am - 12pm)';
   }
-
   function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
-
   // Calculate total
   const totalQuantity = quoteData.materials.reduce((total, item) => total + item.quantity, 0);
-
   // Recalculate pricing based on updated materials
   useEffect(() => {
     const subtotal = quoteData.materials.reduce((sum, material) => sum + material.total, 0);
     const deliveryFee = 1250.00;
     const tax = subtotal * 0.05; // 5% tax
     const total = subtotal + deliveryFee + tax;
-
     setQuoteData(prev => ({
       ...prev,
       pricing: {
@@ -190,18 +174,16 @@ export default function QuoteViewPage() {
       }
     }));
   }, [quoteData.materials]);
-
   // Handle order conversion
   const handleAcceptQuote = () => {
     // Store quote data in session storage for the order tracking page
     sessionStorage.setItem('acceptedQuoteData', JSON.stringify(quoteData));
     router.push('/prototype-1/track');
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="home" />
-
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
@@ -212,7 +194,6 @@ export default function QuoteViewPage() {
               Back to Prototype 1
             </Link>
           </div>
-
           {/* Success notification */}
           {submissionSuccess && (
             <div className="bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 rounded-lg p-4 mb-6 flex items-center">
@@ -225,7 +206,6 @@ export default function QuoteViewPage() {
               </div>
             </div>
           )}
-
           {/* Quote Header */}
           <div className="bg-white dark:bg-gray-900 rounded-t-xl shadow-sm p-8">
             <div className="flex flex-col md:flex-row justify-between mb-8">
@@ -233,7 +213,6 @@ export default function QuoteViewPage() {
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">Materials Quote</h1>
                 <p className="text-gray-600 dark:text-gray-400">Quote #{quoteData.quoteNumber}</p>
               </div>
-
               <div className="mt-4 md:mt-0 md:text-right">
                 <div className="inline-block px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 text-primary font-semibold text-sm">
                   {quoteData.status}
@@ -248,7 +227,6 @@ export default function QuoteViewPage() {
                 </p>
               </div>
             </div>
-
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               {/* Customer Information */}
               <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
@@ -258,7 +236,6 @@ export default function QuoteViewPage() {
                 <p>{quoteData.customer.email}</p>
                 <p>{quoteData.customer.phone}</p>
               </div>
-
               {/* Project Information */}
               <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
                 <h2 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Project Information</h2>
@@ -268,11 +245,9 @@ export default function QuoteViewPage() {
                 <p>Duration: {quoteData.project.duration}</p>
               </div>
             </div>
-
             {/* Materials Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Materials</h2>
-              
               <div className="overflow-x-auto rounded-lg">
                 <table className="w-full text-left">
                   <thead className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm uppercase">
@@ -306,7 +281,6 @@ export default function QuoteViewPage() {
                 </table>
               </div>
             </div>
-
             {/* Delivery Information */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Delivery Information</h2>
@@ -323,7 +297,6 @@ export default function QuoteViewPage() {
                 </div>
               </div>
             </div>
-
             {/* Pricing Summary */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Pricing Summary</h2>
@@ -348,7 +321,6 @@ export default function QuoteViewPage() {
                 </div>
               </div>
             </div>
-
             {/* Terms & Conditions */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Terms & Conditions</h2>
@@ -360,7 +332,6 @@ export default function QuoteViewPage() {
                 </ul>
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-end mt-10">
               <button className="border border-gray-300 dark:border-gray-700 hover:border-primary hover:text-primary font-semibold py-3 px-6 rounded-lg transition-colors">
@@ -379,8 +350,6 @@ export default function QuoteViewPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

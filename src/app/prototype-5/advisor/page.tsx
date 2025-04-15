@@ -1,19 +1,13 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Types for our conversation
 type MessageRole = 'user' | 'assistant' | 'system';
-
 interface Message {
   role: MessageRole;
   content: string;
   options?: string[];
 }
-
 interface Material {
   id: string;
   name: string;
@@ -28,7 +22,6 @@ interface Material {
     environmentalImpact: number;
   };
 }
-
 // Sample materials database
 const MATERIALS: Material[] = [
   {
@@ -130,7 +123,6 @@ const MATERIALS: Material[] = [
     }
   }
 ];
-
 // Initial system messages to guide the conversation
 const INITIAL_MESSAGES: Message[] = [
   {
@@ -142,7 +134,6 @@ const INITIAL_MESSAGES: Message[] = [
     content: 'Hi there! I\'m your AI Materials Advisor. I can help you find the perfect materials for your construction project. What type of project are you working on? (For example: driveway, patio, foundation, landscaping, etc.)',
   },
 ];
-
 // Predefined conversation paths based on project types
 const PROJECT_PATHS: Record<string, Message[]> = {
   driveway: [
@@ -211,11 +202,9 @@ const PROJECT_PATHS: Record<string, Message[]> = {
     }
   ]
 };
-
 // Function to get recommendations based on project type and answers
 const getRecommendations = (projectType: string, answers: string[]): Material[] => {
   let recommended: Material[] = [];
-  
   // Very simplified recommendation logic based on project type and answers
   if (projectType.includes('driveway')) {
     // For driveways - prioritize durability
@@ -223,12 +212,10 @@ const getRecommendations = (projectType: string, answers: string[]): Material[] 
       m.bestFor.some(use => use.toLowerCase().includes('driveway')) ||
       m.properties.durability >= 4.0
     );
-    
     // If they want natural look, prioritize those materials
     if (answers.some(a => a.toLowerCase().includes('natural'))) {
       recommended = recommended.sort((a, b) => b.properties.aesthetics - a.properties.aesthetics);
     }
-    
     // If they have heavy snow/ice, prioritize materials good for drainage
     if (answers.some(a => a.toLowerCase().includes('snow') || a.toLowerCase().includes('ice'))) {
       recommended = recommended.filter(m => 
@@ -243,12 +230,10 @@ const getRecommendations = (projectType: string, answers: string[]): Material[] 
       m.bestFor.some(use => use.toLowerCase().includes('patio')) ||
       (m.properties.aesthetics >= 3.5 && m.properties.durability >= 3.0)
     );
-    
     // If they prioritize low maintenance
     if (answers.some(a => a.toLowerCase().includes('low maintenance'))) {
       recommended = recommended.filter(m => m.properties.durability >= 3.5);
     }
-    
     // If they prioritize natural appearance
     if (answers.some(a => a.toLowerCase().includes('natural'))) {
       recommended = recommended.sort((a, b) => b.properties.aesthetics - a.properties.aesthetics);
@@ -267,7 +252,6 @@ const getRecommendations = (projectType: string, answers: string[]): Material[] 
       m.properties.aesthetics >= 3.5 ||
       m.bestFor.some(use => use.toLowerCase().includes('landscape'))
     );
-    
     // If they want sustainable options
     if (answers.some(a => a.toLowerCase().includes('recycled') || a.toLowerCase().includes('environmental'))) {
       recommended = recommended.filter(m => m.properties.environmentalImpact >= 4.0);
@@ -277,16 +261,13 @@ const getRecommendations = (projectType: string, answers: string[]): Material[] 
     // Generic recommendations if no specific project type recognized
     recommended = MATERIALS.slice(0, 3);
   }
-  
   // Limit to top 3 recommendations
   return recommended.slice(0, 3);
 };
-
 // Functions to handle material selection
 const createMaterialComparisonMessage = (materials: Material[]): string => {
   return `
 Based on what you've told me, here are my top material recommendations for your project:
-
 ${materials.map((mat, index) => `
 **${index + 1}. ${mat.name}**
 ${mat.description}
@@ -297,11 +278,9 @@ ${mat.description}
 • Ease of installation: ${' ★'.repeat(Math.round(mat.properties.easeOfInstallation))}
 • Environmental impact: ${' ★'.repeat(Math.round(mat.properties.environmentalImpact))}
 `).join('\n')}
-
 Would you like more details on any of these options? Or would you like to proceed with getting a quote for one of them?
   `;
 };
-
 export default function AIAdvisor() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState<string>('');
@@ -313,16 +292,13 @@ export default function AIAdvisor() {
   const [showRecommendations, setShowRecommendations] = useState<boolean>(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [quoteGenerated, setQuoteGenerated] = useState<boolean>(false);
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   // Effect to scroll to bottom of messages
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-
   // Process user input to determine project type
   const processProjectType = (input: string) => {
     input = input.toLowerCase();
@@ -341,26 +317,20 @@ export default function AIAdvisor() {
     }
     return '';
   };
-
   // Handle sending a message
   const handleSendMessage = async () => {
     if (inputValue.trim() === '') return;
-    
     const userMessage = { role: 'user' as MessageRole, content: inputValue };
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setLoading(true);
-    
     // Short delay to simulate "thinking"
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     // Logic to determine response based on conversation state
     let nextMessage: Message | null = null;
-    
     // If this is the initial project description
     if (messages.length === 2) {  // After system message and initial greeting
       const detectedProjectType = processProjectType(userMessage.content);
-      
       if (detectedProjectType && PROJECT_PATHS[detectedProjectType]) {
         // If we recognize the project type, start that conversation path
         nextMessage = PROJECT_PATHS[detectedProjectType][0];
@@ -393,7 +363,6 @@ export default function AIAdvisor() {
     else if (projectType && PROJECT_PATHS[projectType] && currentQuestion < PROJECT_PATHS[projectType].length) {
       // Store user's answer
       setUserAnswers(prev => [...prev, userMessage.content]);
-      
       // Move to next question in the path
       nextMessage = PROJECT_PATHS[projectType][currentQuestion];
       setCurrentQuestion(prev => prev + 1);
@@ -402,17 +371,14 @@ export default function AIAdvisor() {
     else if (projectType && currentQuestion >= PROJECT_PATHS[projectType].length) {
       // Store the final answer
       setUserAnswers(prev => [...prev, userMessage.content]);
-      
       // Generate recommendations based on project type and answers
       const materialRecommendations = getRecommendations(projectType, [...userAnswers, userMessage.content]);
       setRecommendations(materialRecommendations);
-      
       // Create a message with material comparisons
       nextMessage = {
         role: 'assistant',
         content: createMaterialComparisonMessage(materialRecommendations)
       };
-      
       setShowRecommendations(true);
     }
     // Handle selection of a recommended material
@@ -420,18 +386,14 @@ export default function AIAdvisor() {
       // Extract material number from message if present
       const materialMatch = userMessage.content.match(/[1-3]/);
       const materialIndex = materialMatch ? parseInt(materialMatch[0]) - 1 : 0;
-      
       if (materialIndex >= 0 && materialIndex < recommendations.length) {
         setSelectedMaterial(recommendations[materialIndex]);
-        
         // Generate quote information
         nextMessage = {
           role: 'assistant',
           content: `Great choice! I've prepared a quote for ${recommendations[materialIndex].name}. To finalize this quote, I need a few more details:
-
 1. What quantity do you need? (For your project size, I'd estimate around 10-15 tons)
 2. When would you like the materials delivered?
-
 Once we have these details, I can provide a complete quote with pricing, delivery, and any additional recommendations for your specific application.`
         };
       } else {
@@ -445,29 +407,24 @@ Once we have these details, I can provide a complete quote with pricing, deliver
     else if (selectedMaterial && !quoteGenerated) {
       // This would parse details about quantity and delivery date
       setQuoteGenerated(true);
-      
       // Generate a final quote
       const estimatedQuantity = 12; // This would be calculated based on project dimensions
       const pricePerUnit = parseInt(selectedMaterial.priceRange.replace(/[^\d-]/g, '').split('-')[0]);
       const totalPrice = pricePerUnit * estimatedQuantity;
-
       nextMessage = {
         role: 'assistant',
         content: `# Quote Summary for Your ${projectType.charAt(0).toUpperCase() + projectType.slice(1)} Project
-
 **Selected Material**: ${selectedMaterial.name}
 **Estimated Quantity**: ${estimatedQuantity} tons
 **Unit Price**: $${pricePerUnit} per ton
 **Subtotal**: $${totalPrice}
 **Delivery Fee**: $150
 **Total**: $${totalPrice + 150}
-
 **Notes**:
 - This quote is valid for 30 days
 - Delivery timeframe: 3-5 business days
 - Minimum order quantity may apply
 - Price includes standard delivery to accessible locations
-
 Would you like to:
 1. Save this quote for later
 2. Adjust the material selection or quantity
@@ -481,24 +438,17 @@ Would you like to:
         content: "Thanks for that information. Is there anything specific about materials you'd like to know more about?"
       };
     }
-    
     if (nextMessage) {
       setMessages(prev => [...prev, nextMessage!]);
     }
-    
     setLoading(false);
   };
-
   // Handle clicking a suggested option
   const handleOptionClick = (option: string) => {
     setInputValue(option);
     handleSendMessage();
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-5" />
-
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
@@ -508,7 +458,6 @@ Would you like to:
               </svg>
               <h1 className="text-xl font-semibold">AI Material Advisor</h1>
             </div>
-            
             {/* Chat messages container */}
             <div className="h-[500px] overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800">
               {messages.filter(m => m.role !== 'system').map((message, index) => (
@@ -520,7 +469,6 @@ Would you like to:
                   }`}>
                     <div className="whitespace-pre-wrap prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                   </div>
-                  
                   {/* Display options if available */}
                   {message.options && (
                     <div className="mt-2 flex flex-wrap gap-2 justify-start">
@@ -537,7 +485,6 @@ Would you like to:
                   )}
                 </div>
               ))}
-              
               {loading && (
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"></div>
@@ -545,10 +492,8 @@ Would you like to:
                   <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               )}
-              
               <div ref={messagesEndRef} />
             </div>
-            
             {/* Input area */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex space-x-2">
@@ -568,7 +513,6 @@ Would you like to:
                   Send
                 </button>
               </div>
-              
               {quoteGenerated && (
                 <div className="mt-4 flex justify-center">
                   <Link
@@ -581,14 +525,11 @@ Would you like to:
               )}
             </div>
           </div>
-          
           <div className="mt-8 text-center text-gray-600 dark:text-gray-400 text-sm">
             <p>This is a prototype interface. In a real application, this would connect to a materials database, AI service, and quote system.</p>
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

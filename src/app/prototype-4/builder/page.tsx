@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Material data with categories
 const materialCategories = [
   {
@@ -37,7 +33,6 @@ const materialCategories = [
     ]
   }
 ];
-
 // Project zone templates
 const zoneTemplates = [
   { id: 'driveway', name: 'Driveway', defaultWidth: 12, defaultLength: 40, defaultDepth: 0.5, unit: 'ft' },
@@ -46,16 +41,13 @@ const zoneTemplates = [
   { id: 'backfill', name: 'Backfill Area', defaultWidth: 10, defaultLength: 20, defaultDepth: 2, unit: 'ft' },
   { id: 'custom', name: 'Custom Zone', defaultWidth: 10, defaultLength: 10, defaultDepth: 1, unit: 'ft' }
 ];
-
 export default function VisualBuilder() {
   const router = useRouter();
   const dragItemRef = useRef(null);
   const dragSourceRef = useRef(null);
-  
   // State for project zones
   const [projectZones, setProjectZones] = useState([]);
   const [activeZoneId, setActiveZoneId] = useState(null);
-  
   // State for showing zone form
   const [showZoneForm, setShowZoneForm] = useState(false);
   const [zoneTemplate, setZoneTemplate] = useState(zoneTemplates[0]);
@@ -66,21 +58,17 @@ export default function VisualBuilder() {
     depth: 0,
     materials: []
   });
-  
   // State for active tab
   const [activeTab, setActiveTab] = useState('zones');
-  
   // Calculate total quote
   const calculateTotalCost = () => {
     let total = 0;
-    
     projectZones.forEach(zone => {
       zone.materials.forEach(material => {
         const materialData = findMaterialById(material.id);
         if (materialData) {
           // Convert cubic feet to tons (approximation) or yards based on material unit
           let quantity;
-          
           if (materialData.unit === 'ton') {
             // Rough conversion from cubic feet to tons (varies by material density)
             quantity = (zone.width * zone.length * zone.depth) / 20; 
@@ -88,16 +76,13 @@ export default function VisualBuilder() {
             // Convert cubic feet to cubic yards
             quantity = (zone.width * zone.length * zone.depth) / 27;
           }
-          
           quantity = quantity * material.coverage; // Apply coverage percentage
           total += materialData.price * quantity;
         }
       });
     });
-    
     return total.toFixed(2);
   };
-  
   // Find material by ID
   const findMaterialById = (materialId) => {
     for (const category of materialCategories) {
@@ -106,7 +91,6 @@ export default function VisualBuilder() {
     }
     return null;
   };
-  
   // Handle adding a zone
   const handleAddZone = () => {
     setZoneFormData({
@@ -118,7 +102,6 @@ export default function VisualBuilder() {
     });
     setShowZoneForm(true);
   };
-  
   // Handle saving a zone
   const handleSaveZone = () => {
     const newZone = {
@@ -130,24 +113,20 @@ export default function VisualBuilder() {
       unit: zoneTemplate.unit,
       materials: []
     };
-    
     setProjectZones([...projectZones, newZone]);
     setShowZoneForm(false);
     setActiveZoneId(newZone.id);
     setActiveTab('materials');
   };
-  
   // Handle canceling zone addition
   const handleCancelZone = () => {
     setShowZoneForm(false);
   };
-  
   // Handle zone form input changes
   const handleZoneFormChange = (e) => {
     const { name, value } = e.target;
     setZoneFormData({ ...zoneFormData, [name]: value });
   };
-  
   // Handle selecting a zone template
   const handleSelectZoneTemplate = (template) => {
     setZoneTemplate(template);
@@ -159,18 +138,15 @@ export default function VisualBuilder() {
       materials: []
     });
   };
-  
   // Handle clicking on a zone
   const handleZoneClick = (zoneId) => {
     setActiveZoneId(zoneId);
     setActiveTab('materials');
   };
-  
   // Handle drag start
   const handleDragStart = (e, materialId, isFromZone, zoneId) => {
     dragItemRef.current = materialId;
     dragSourceRef.current = isFromZone ? `zone-${zoneId}` : 'catalog';
-    
     // For visual feedback during drag
     if (e.target.classList) {
       setTimeout(() => {
@@ -178,42 +154,33 @@ export default function VisualBuilder() {
       }, 0);
     }
   };
-  
   // Handle drag end
   const handleDragEnd = (e) => {
     dragItemRef.current = null;
     dragSourceRef.current = null;
-    
     // Reset visual feedback
     if (e.target.classList) {
       e.target.classList.remove('opacity-50');
     }
   };
-  
   // Handle drag over
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-  
   // Handle drop on a zone
   const handleDrop = (e, zoneId) => {
     e.preventDefault();
-    
     if (!dragItemRef.current) return;
-    
     // Get the material being dragged
     const materialId = dragItemRef.current;
     const materialData = findMaterialById(materialId);
-    
     if (!materialData) return;
-    
     // Update the zone with the new material
     setProjectZones(zones => 
       zones.map(zone => {
         if (zone.id === zoneId) {
           // Check if material already exists in zone
           const existingMaterialIndex = zone.materials.findIndex(m => m.id === materialId);
-          
           if (existingMaterialIndex >= 0) {
             // If from catalog, just increase coverage
             if (dragSourceRef.current === 'catalog') {
@@ -234,10 +201,8 @@ export default function VisualBuilder() {
         return zone;
       })
     );
-    
     setActiveZoneId(zoneId);
   };
-  
   // Handle removing a material from a zone
   const handleRemoveMaterial = (zoneId, materialId) => {
     setProjectZones(zones => 
@@ -252,7 +217,6 @@ export default function VisualBuilder() {
       })
     );
   };
-  
   // Handle adjusting material coverage in a zone
   const handleAdjustCoverage = (zoneId, materialId, newCoverage) => {
     setProjectZones(zones => 
@@ -269,7 +233,6 @@ export default function VisualBuilder() {
       })
     );
   };
-  
   // Handle removing a zone
   const handleRemoveZone = (zoneId) => {
     setProjectZones(zones => zones.filter(zone => zone.id !== zoneId));
@@ -278,7 +241,6 @@ export default function VisualBuilder() {
       setActiveTab('zones');
     }
   };
-  
   // Handle submitting the quote
   const handleSubmitQuote = () => {
     // Store the project data in session storage
@@ -287,33 +249,24 @@ export default function VisualBuilder() {
       totalCost: calculateTotalCost(),
       date: new Date().toISOString()
     };
-    
     sessionStorage.setItem('visualBuilderQuote', JSON.stringify(quoteData));
-    
     // Navigate to a success page or show confirmation
     alert('Quote request submitted! In a real implementation, you would be redirected to a confirmation page.');
   };
-  
   // Find the active zone
   const activeZone = projectZones.find(zone => zone.id === activeZoneId);
-  
   // Calculate area and volume of a zone
   const calculateZoneVolume = (zone) => {
     const areaFt = zone.width * zone.length;
     const volumeFt = areaFt * zone.depth;
     const volumeYd = volumeFt / 27; // Convert to cubic yards
-    
     return {
       areaFt: areaFt.toFixed(1),
       volumeFt: volumeFt.toFixed(1),
       volumeYd: volumeYd.toFixed(1)
     };
   };
-  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-4" />
-      
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/prototype-4" className="text-primary hover:underline inline-flex items-center">
@@ -323,9 +276,7 @@ export default function VisualBuilder() {
             Back to Prototype 4
           </Link>
         </div>
-        
         <h1 className="text-3xl font-bold mb-6 text-center">Project Builder</h1>
-        
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden">
           {/* Tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
@@ -361,7 +312,6 @@ export default function VisualBuilder() {
               Quote Summary
             </button>
           </div>
-          
           {/* Tab Content */}
           <div className="p-6">
             {/* Zones Tab */}
@@ -376,12 +326,10 @@ export default function VisualBuilder() {
                     Add Zone
                   </button>
                 </div>
-                
                 {/* Zone Form */}
                 {showZoneForm && (
                   <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
                     <h3 className="font-medium mb-4">Add New Zone</h3>
-                    
                     <div className="grid md:grid-cols-2 gap-6 mb-4">
                       {zoneTemplates.map(template => (
                         <div 
@@ -400,7 +348,6 @@ export default function VisualBuilder() {
                         </div>
                       ))}
                     </div>
-                    
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">Zone Name</label>
@@ -412,7 +359,6 @@ export default function VisualBuilder() {
                           className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2 bg-white dark:bg-gray-900"
                         />
                       </div>
-                      
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="block text-sm font-medium mb-1">Width ({zoneTemplate.unit})</label>
@@ -452,12 +398,10 @@ export default function VisualBuilder() {
                         </div>
                       </div>
                     </div>
-                    
                     <div className="text-sm text-gray-500 mb-4">
                       Area: {(zoneFormData.width * zoneFormData.length).toFixed(1)} sq {zoneTemplate.unit} | 
                       Volume: {(zoneFormData.width * zoneFormData.length * zoneFormData.depth).toFixed(1)} cubic {zoneTemplate.unit}
                     </div>
-                    
                     <div className="flex justify-end space-x-2">
                       <button 
                         onClick={handleCancelZone}
@@ -474,13 +418,11 @@ export default function VisualBuilder() {
                     </div>
                   </div>
                 )}
-                
                 {/* Zone List */}
                 {projectZones.length > 0 ? (
                   <div className="grid md:grid-cols-2 gap-4">
                     {projectZones.map(zone => {
                       const volume = calculateZoneVolume(zone);
-                      
                       return (
                         <div 
                           key={zone.id}
@@ -505,7 +447,6 @@ export default function VisualBuilder() {
                               </svg>
                             </button>
                           </div>
-                          
                           <div className="mt-2 flex flex-wrap gap-1">
                             {zone.materials.map(material => {
                               const materialData = findMaterialById(material.id);
@@ -520,16 +461,13 @@ export default function VisualBuilder() {
                                 </span>
                               ) : null;
                             })}
-                            
                             {zone.materials.length === 0 && (
                               <span className="text-sm text-gray-500 dark:text-gray-400 italic">No materials assigned</span>
                             )}
                           </div>
-                          
                           <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                             Dimensions: {zone.width} × {zone.length} × {zone.depth} {zone.unit}
                           </div>
-                          
                           <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Area: {volume.areaFt} sq ft | Volume: {volume.volumeYd} cubic yards
                           </div>
@@ -550,7 +488,6 @@ export default function VisualBuilder() {
                 )}
               </div>
             )}
-            
             {/* Materials Tab */}
             {activeTab === 'materials' && (
               <div>
@@ -564,7 +501,6 @@ export default function VisualBuilder() {
                         <span className="font-medium">Dimensions:</span> {activeZone.width} × {activeZone.length} × {activeZone.depth} {activeZone.unit}
                       </div>
                     </div>
-                    
                     <div className="grid lg:grid-cols-2 gap-6">
                       {/* Material Categories */}
                       <div>
@@ -572,7 +508,6 @@ export default function VisualBuilder() {
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                           Drag materials and drop them onto the zone to add them to your project.
                         </p>
-                        
                         <div className="space-y-6">
                           {materialCategories.map(category => (
                             <div key={category.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -603,14 +538,12 @@ export default function VisualBuilder() {
                           ))}
                         </div>
                       </div>
-                      
                       {/* Active Zone */}
                       <div>
                         <h3 className="font-medium mb-3">Zone Materials</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                           Adjust coverage percentages or remove materials using the controls below.
                         </p>
-                        
                         <div 
                           className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-4 min-h-[300px]"
                           onDragOver={handleDragOver}
@@ -622,16 +555,13 @@ export default function VisualBuilder() {
                               {calculateZoneVolume(activeZone).volumeYd} cubic yards total volume
                             </p>
                           </div>
-                          
                           {activeZone.materials.length > 0 ? (
                             <div className="space-y-3">
                               {activeZone.materials.map(material => {
                                 const materialData = findMaterialById(material.id);
                                 if (!materialData) return null;
-                                
                                 const volume = calculateZoneVolume(activeZone);
                                 let quantity;
-                                
                                 if (materialData.unit === 'ton') {
                                   // Rough conversion from cubic feet to tons
                                   quantity = (parseFloat(volume.volumeFt) * material.coverage) / 20;
@@ -639,9 +569,7 @@ export default function VisualBuilder() {
                                   // Convert cubic feet to cubic yards
                                   quantity = parseFloat(volume.volumeYd) * material.coverage;
                                 }
-                                
                                 const cost = materialData.price * quantity;
-                                
                                 return (
                                   <div 
                                     key={material.id}
@@ -665,7 +593,6 @@ export default function VisualBuilder() {
                                         </svg>
                                       </button>
                                     </div>
-                                    
                                     <div className="mt-2">
                                       <label className="text-sm text-gray-500 dark:text-gray-400 mb-1 block">
                                         Coverage: {(material.coverage * 100)}%
@@ -680,7 +607,6 @@ export default function VisualBuilder() {
                                         className="w-full"
                                       />
                                     </div>
-                                    
                                     <div className="mt-2 text-sm grid grid-cols-2 gap-2">
                                       <div className="text-gray-500 dark:text-gray-400">
                                         Quantity: {quantity.toFixed(1)} {materialData.unit}s
@@ -717,12 +643,10 @@ export default function VisualBuilder() {
                 )}
               </div>
             )}
-            
             {/* Summary Tab */}
             {activeTab === 'summary' && (
               <div>
                 <h2 className="text-xl font-semibold mb-6">Quote Summary</h2>
-                
                 {projectZones.length > 0 ? (
                   <>
                     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-6">
@@ -738,11 +662,9 @@ export default function VisualBuilder() {
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                           {projectZones.map(zone => {
                             const volume = calculateZoneVolume(zone);
-                            
                             return zone.materials.map((material, idx) => {
                               const materialData = findMaterialById(material.id);
                               if (!materialData) return null;
-                              
                               let quantity;
                               if (materialData.unit === 'ton') {
                                 // Rough conversion from cubic feet to tons
@@ -751,9 +673,7 @@ export default function VisualBuilder() {
                                 // Convert cubic feet to cubic yards
                                 quantity = parseFloat(volume.volumeYd) * material.coverage;
                               }
-                              
                               const cost = materialData.price * quantity;
-                              
                               return (
                                 <tr key={`${zone.id}-${material.id}`} className="bg-white dark:bg-gray-900">
                                   <td className="px-4 py-3 text-sm">
@@ -787,13 +707,11 @@ export default function VisualBuilder() {
                         </tfoot>
                       </table>
                     </div>
-                    
                     <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg">
                       <h3 className="font-medium mb-2">Delivery & Contact Information</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         In a real implementation, you would enter delivery schedule and contact details here.
                       </p>
-                      
                       <div className="flex justify-end">
                         <button
                           onClick={handleSubmitQuote}
@@ -821,7 +739,6 @@ export default function VisualBuilder() {
             )}
           </div>
         </div>
-        
         {/* Info section */}
         <div className="mt-8 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg p-6">
           <h3 className="font-medium mb-2 flex items-center">
@@ -838,8 +755,6 @@ export default function VisualBuilder() {
           </p>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

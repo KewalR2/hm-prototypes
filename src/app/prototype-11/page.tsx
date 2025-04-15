@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { useQuote } from './components/QuoteContext';
 import ToastNotification from './components/ToastNotification';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Prototype11Page() {
   const router = useRouter();
@@ -53,7 +52,9 @@ export default function Prototype11Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-11" />
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
@@ -289,8 +290,6 @@ export default function Prototype11Page() {
           onClose={() => setShowToast(false)} 
         />
       )}
-
-      <Footer />
     </div>
   );
 }

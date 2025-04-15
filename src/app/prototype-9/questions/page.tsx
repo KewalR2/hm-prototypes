@@ -1,11 +1,7 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 // Types for project data
 type MaterialSelection = {
   id: string;
@@ -14,7 +10,6 @@ type MaterialSelection = {
   unit: string;
   price: number;
 };
-
 type ProjectDetails = {
   projectName: string;
   projectAddress: string;
@@ -27,7 +22,6 @@ type ProjectDetails = {
   contactPhone: string;
   specialRequirements: string;
 };
-
 // Component for the question-driven material quote flow
 export default function QuestionFlow() {
   const router = useRouter();
@@ -49,7 +43,6 @@ export default function QuestionFlow() {
   const [quote, setQuote] = useState<null | {total: number, quoteId: string}>(null);
   const [animationDirection, setAnimationDirection] = useState('forward');
   const inputRef = useRef<HTMLInputElement>(null);
-  
   // Material options
   const materialOptions = [
     { id: 'concrete', name: 'Concrete', unit: 'cubic yards', price: 115 },
@@ -61,7 +54,6 @@ export default function QuestionFlow() {
     { id: 'topsoil', name: 'Topsoil', unit: 'cubic yards', price: 35 },
     { id: 'fill-dirt', name: 'Fill Dirt', unit: 'cubic yards', price: 25 },
   ];
-  
   // Project type options
   const projectTypes = [
     'Residential Construction',
@@ -72,7 +64,6 @@ export default function QuestionFlow() {
     'Municipal/Public Works',
     'Other'
   ];
-  
   // Timeframe options
   const timeframeOptions = [
     'As soon as possible',
@@ -82,7 +73,6 @@ export default function QuestionFlow() {
     'More than 1 month',
     'Flexible'
   ];
-
   // Animation variants for transitions
   const pageVariants = {
     initial: (direction: string) => ({
@@ -106,7 +96,6 @@ export default function QuestionFlow() {
       }
     })
   };
-
   // Auto-focus on input when step changes
   useEffect(() => {
     if (inputRef.current) {
@@ -115,14 +104,12 @@ export default function QuestionFlow() {
       }, 300);
     }
   }, [step]);
-
   // Save data to session storage
   useEffect(() => {
     if (step > 1) {
       sessionStorage.setItem('projectData', JSON.stringify(projectData));
     }
   }, [projectData, step]);
-
   // Load data from session storage
   useEffect(() => {
     const savedData = sessionStorage.getItem('projectData');
@@ -134,58 +121,47 @@ export default function QuestionFlow() {
       }
     }
   }, []);
-
   const handleNext = () => {
     // Basic validation for each step
     if (step === 1 && !projectData.projectName) {
       alert('Please enter a project name to continue.');
       return;
     }
-    
     if (step === 2 && !projectData.projectAddress) {
       alert('Please enter a project address to continue.');
       return;
     }
-    
     if (step === 3 && !projectData.projectType) {
       alert('Please select a project type to continue.');
       return;
     }
-    
     if (step === 4 && projectData.materials.length === 0) {
       alert('Please select at least one material to continue.');
       return;
     }
-    
     if (step === 5 && !projectData.timeframe) {
       alert('Please select a timeframe to continue.');
       return;
     }
-    
     if (step === 6 && (!projectData.contactName || !projectData.contactEmail || !projectData.contactPhone)) {
       alert('Please fill in all contact information to continue.');
       return;
     }
-
     setAnimationDirection('forward');
-    
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
       handleSubmit();
     }
   };
-
   const handleBack = () => {
     if (step > 1) {
       setAnimationDirection('backward');
       setStep(step - 1);
     }
   };
-
   const handleAddMaterial = (material: typeof materialOptions[0]) => {
     const existingMaterial = projectData.materials.find(m => m.id === material.id);
-    
     if (existingMaterial) {
       setProjectData({
         ...projectData,
@@ -206,20 +182,17 @@ export default function QuestionFlow() {
       });
     }
   };
-
   const handleRemoveMaterial = (materialId: string) => {
     setProjectData({
       ...projectData,
       materials: projectData.materials.filter(m => m.id !== materialId)
     });
   };
-
   const handleUpdateQuantity = (materialId: string, quantity: number) => {
     if (quantity <= 0) {
       handleRemoveMaterial(materialId);
       return;
     }
-    
     setProjectData({
       ...projectData,
       materials: projectData.materials.map(m => 
@@ -227,24 +200,19 @@ export default function QuestionFlow() {
       )
     });
   };
-
   const handleSubmit = () => {
     setLoading(true);
-    
     // Calculate quote total
     const total = projectData.materials.reduce(
       (sum, material) => sum + (material.price * material.quantity), 
       0
     );
-    
     // Generate random quote ID
     const quoteId = 'QT-' + Math.floor(100000 + Math.random() * 900000);
-    
     // Simulate API call with timeout
     setTimeout(() => {
       setQuote({ total, quoteId });
       setLoading(false);
-      
       // Save quote to session storage
       sessionStorage.setItem('latestQuote', JSON.stringify({ 
         ...projectData, 
@@ -255,7 +223,6 @@ export default function QuestionFlow() {
       }));
     }, 1500);
   };
-
   // Render different question content based on current step
   const renderStepContent = () => {
     switch (step) {
@@ -274,7 +241,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               This helps us identify and track your project.
             </p>
-            
             <div className="mb-6">
               <input
                 ref={inputRef}
@@ -285,7 +251,6 @@ export default function QuestionFlow() {
                 className="w-full px-5 py-4 text-lg rounded-lg border-2 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none transition-all dark:bg-gray-800 dark:text-white"
               />
             </div>
-            
             <motion.div 
               className="text-sm text-gray-500 dark:text-gray-400 italic"
               initial={{ opacity: 0 }}
@@ -296,7 +261,6 @@ export default function QuestionFlow() {
             </motion.div>
           </motion.div>
         );
-        
       case 2:
         return (
           <motion.div
@@ -312,7 +276,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               This helps us determine delivery logistics and costs.
             </p>
-            
             <div className="mb-6">
               <textarea
                 value={projectData.projectAddress}
@@ -323,7 +286,6 @@ export default function QuestionFlow() {
             </div>
           </motion.div>
         );
-        
       case 3:
         return (
           <motion.div
@@ -339,7 +301,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               This helps us understand your specific material requirements.
             </p>
-            
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {projectTypes.map((type) => (
                 <motion.div
@@ -368,7 +329,6 @@ export default function QuestionFlow() {
                 </motion.div>
               ))}
             </div>
-            
             {projectData.projectType === 'Other' && (
               <div className="mb-6">
                 <label className="block mb-2 text-sm font-medium">Please specify:</label>
@@ -383,7 +343,6 @@ export default function QuestionFlow() {
             )}
           </motion.div>
         );
-        
       case 4:
         return (
           <motion.div
@@ -399,11 +358,9 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               Select all the materials you need for your project.
             </p>
-            
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {materialOptions.map((material) => {
                 const isSelected = projectData.materials.some(m => m.id === material.id);
-                
                 return (
                   <motion.div
                     key={material.id}
@@ -437,7 +394,6 @@ export default function QuestionFlow() {
                 );
               })}
             </div>
-            
             {projectData.materials.length > 0 && (
               <div className="mb-8">
                 <h3 className="font-bold mb-4 text-lg">Selected Materials</h3>
@@ -477,7 +433,6 @@ export default function QuestionFlow() {
                       </div>
                     </div>
                   ))}
-                  
                   <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                     <span className="font-medium">Estimated Total:</span>
                     <span className="font-bold">${projectData.materials.reduce((sum, material) => sum + (material.price * material.quantity), 0).toFixed(2)}</span>
@@ -487,7 +442,6 @@ export default function QuestionFlow() {
             )}
           </motion.div>
         );
-        
       case 5:
         return (
           <motion.div
@@ -503,7 +457,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               This helps us plan for your delivery needs.
             </p>
-            
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {timeframeOptions.map((option) => (
                 <motion.div
@@ -532,7 +485,6 @@ export default function QuestionFlow() {
                 </motion.div>
               ))}
             </div>
-            
             <div className="mb-6">
               <label className="block mb-2 text-sm font-medium">Any special delivery instructions?</label>
               <textarea
@@ -544,7 +496,6 @@ export default function QuestionFlow() {
             </div>
           </motion.div>
         );
-        
       case 6:
         return (
           <motion.div
@@ -560,7 +511,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               We'll send the quote details to you right away.
             </p>
-            
             <div className="space-y-6 mb-6">
               <div>
                 <label className="block mb-2 text-sm font-medium">Full Name</label>
@@ -573,7 +523,6 @@ export default function QuestionFlow() {
                   className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none transition-all dark:bg-gray-800 dark:text-white"
                 />
               </div>
-              
               <div>
                 <label className="block mb-2 text-sm font-medium">Email Address</label>
                 <input
@@ -584,7 +533,6 @@ export default function QuestionFlow() {
                   className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none transition-all dark:bg-gray-800 dark:text-white"
                 />
               </div>
-              
               <div>
                 <label className="block mb-2 text-sm font-medium">Phone Number</label>
                 <input
@@ -598,7 +546,6 @@ export default function QuestionFlow() {
             </div>
           </motion.div>
         );
-        
       case 7:
         return (
           <motion.div
@@ -614,7 +561,6 @@ export default function QuestionFlow() {
             <p className="text-gray-600 dark:text-gray-300 mb-8">
               Please verify all details before submitting your quote request.
             </p>
-            
             <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-8">
               <div className="space-y-4">
                 <div>
@@ -630,12 +576,10 @@ export default function QuestionFlow() {
                     </div>
                   </div>
                 </div>
-                
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="font-bold text-sm text-gray-500 dark:text-gray-400">LOCATION</h3>
                   <p className="mt-2 whitespace-pre-line">{projectData.projectAddress}</p>
                 </div>
-                
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="font-bold text-sm text-gray-500 dark:text-gray-400">DELIVERY TIMEFRAME</h3>
                   <p className="mt-2">{projectData.timeframe}</p>
@@ -646,7 +590,6 @@ export default function QuestionFlow() {
                     </div>
                   )}
                 </div>
-                
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="font-bold text-sm text-gray-500 dark:text-gray-400">CONTACT INFORMATION</h3>
                   <div className="grid md:grid-cols-3 gap-4 mt-2">
@@ -664,7 +607,6 @@ export default function QuestionFlow() {
                     </div>
                   </div>
                 </div>
-                
                 <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                   <h3 className="font-bold text-sm text-gray-500 dark:text-gray-400">MATERIALS</h3>
                   <div className="mt-3 space-y-2">
@@ -678,7 +620,6 @@ export default function QuestionFlow() {
                       </div>
                     ))}
                   </div>
-                  
                   <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                     <span className="font-bold">Estimated Total:</span>
                     <span className="font-bold text-xl">${projectData.materials.reduce((sum, material) => sum + (material.price * material.quantity), 0).toFixed(2)}</span>
@@ -686,25 +627,19 @@ export default function QuestionFlow() {
                 </div>
               </div>
             </div>
-            
             <div className="text-sm text-gray-600 dark:text-gray-400">
               By submitting this request, you agree to our Terms of Service and Privacy Policy.
               We'll respond to your quote request within 1 business day.
             </div>
           </motion.div>
         );
-        
       default:
         return null;
     }
   };
-
   // If quote is generated, show success screen
   if (quote) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <Header currentPage="prototype-9" />
-        
         <main className="container mx-auto px-4 py-12">
           <motion.div 
             className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden"
@@ -725,7 +660,6 @@ export default function QuestionFlow() {
                 </div>
               </div>
             </div>
-            
             <div className="p-6">
               <div className="mb-6">
                 <h3 className="text-lg font-bold mb-2">Quote Details</h3>
@@ -748,7 +682,6 @@ export default function QuestionFlow() {
                   </div>
                 </div>
               </div>
-              
               <div className="mb-8">
                 <h3 className="text-lg font-bold mb-2">What's Next?</h3>
                 <ol className="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-300">
@@ -757,7 +690,6 @@ export default function QuestionFlow() {
                   <li>You can track your order status using the tracking page.</li>
                 </ol>
               </div>
-              
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
                   onClick={() => router.push('/prototype-9/tracker')}
@@ -779,17 +711,11 @@ export default function QuestionFlow() {
             </div>
           </motion.div>
         </main>
-        
-        <Footer />
       </div>
     );
   }
-
   // Main question flow UI
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-9" />
-      
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           {/* Progress Bar */}
@@ -807,7 +733,6 @@ export default function QuestionFlow() {
               <span>Review</span>
             </div>
           </div>
-          
           {/* Question Card */}
           <motion.div 
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-8"
@@ -819,7 +744,6 @@ export default function QuestionFlow() {
               {renderStepContent()}
             </AnimatePresence>
           </motion.div>
-          
           {/* Navigation Buttons */}
           <div className="flex justify-between">
             <motion.button
@@ -835,7 +759,6 @@ export default function QuestionFlow() {
             >
               Back
             </motion.button>
-            
             <motion.button
               onClick={handleNext}
               disabled={loading}
@@ -861,8 +784,6 @@ export default function QuestionFlow() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

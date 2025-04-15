@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Prototype10Landing() {
   const router = useRouter();
@@ -56,7 +55,9 @@ export default function Prototype10Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-10" />
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
 
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
@@ -432,8 +433,6 @@ export default function Prototype10Landing() {
           </Link>
         </motion.section>
       </main>
-
-      <Footer />
     </div>
   );
 }

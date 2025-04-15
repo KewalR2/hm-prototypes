@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { observer } from 'mobx-react-lite';
 import ClaudeToggle from './components/ClaudeToggle';
-import ThemeToggle from './components/ThemeToggle';
 import QuestionPanel from './components/QuestionPanel';
 import SidePanel from './components/SidePanel';
 import VoiceInputButton from './components/VoiceInputButton';
@@ -219,7 +218,6 @@ const AdaptiveQuoteRequestFlow = observer(() => {
               Get a customized quote for heavy construction materials by answering a series of questions.
             </p>
           </div>
-          <ThemeToggle />
         </div>
         
         <div className="mt-4 flex items-center">

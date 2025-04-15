@@ -1,24 +1,15 @@
 'use client';
-
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { useQuote } from '@/app/prototype-11/components/QuoteContext';
 import AIConversationInterface from '@/app/prototype-11/components/AIConversationInterface';
 import ToastNotification from '@/app/prototype-11/components/ToastNotification';
-
 export default function AIAssistantPage() {
   const router = useRouter();
   const { inputMode, setInputMode } = useQuote();
-  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="prototype-11" />
-      
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">AI-Powered Quote Assistant</h1>
-        
         <div className="max-w-4xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mb-8">
             <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
@@ -28,10 +19,8 @@ export default function AIAssistantPage() {
                 The assistant will guide you through the process by asking questions about your project.
               </p>
             </div>
-
             <AIConversationInterface />
           </div>
-          
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-lg font-bold mb-4">About AI-Powered Quoting</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -46,7 +35,6 @@ export default function AIAssistantPage() {
                   Just describe your project needs in your own words. No need to navigate complex forms.
                 </p>
               </div>
-              
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,7 +46,6 @@ export default function AIAssistantPage() {
                   Receive intelligent suggestions for materials and delivery options based on your project.
                 </p>
               </div>
-              
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +59,6 @@ export default function AIAssistantPage() {
               </div>
             </div>
           </div>
-          
           <div className="text-center">
             <button
               onClick={() => {
@@ -89,8 +75,6 @@ export default function AIAssistantPage() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

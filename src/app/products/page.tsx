@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 const products = [
   {
@@ -85,9 +83,6 @@ const products = [
 
 export default function ProductsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Header currentPage="products" />
-
       <main className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-6">Our Products</h1>
@@ -145,8 +140,5 @@ export default function ProductsPage() {
           ))}
         </div>
       </main>
-
-      <Footer />
-    </div>
   );
 }
