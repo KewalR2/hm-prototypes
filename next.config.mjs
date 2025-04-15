@@ -4,7 +4,6 @@ const nextConfig = {
     styledComponents: true
   },
   output: 'export',
-  basePath: '/hm-prototypes',
   images: { unoptimized: true }
 };
 
