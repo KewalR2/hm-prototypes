@@ -1,0 +1,46 @@
+# AI-Driven Materials Quote Flow - Mindset
+
+## Core Philosophy
+The Heavy Materials quoting system should function as an intelligent advisor that removes friction from the materials procurement process. The system should shoulder the cognitive burden, not the user.
+
+## Key Principles
+1. **Adapt to user knowledge level** - Recognize expert vs. novice users automatically
+2. **Project-first approach** - Understand the whole project before suggesting specific materials
+3. **Proactive intelligence** - Don't just take orders; make intelligent suggestions
+4. **Contextual awareness** - Consider location, weather, regulations, and timeline
+5. **Decision simplification** - Reduce complex material choices to clear options with pros/cons
+6. **Continuous improvement** - Learn from past interactions to improve recommendations
+
+## Question Strategy
+- Start open-ended: "What are you working on today?"
+- Adapt follow-up questions based on detail level of initial response
+- Ask only what's necessary - infer information where possible
+- Prioritize questions that unlock the most decision paths
+
+## System Capabilities
+1. **Project understanding** - Identify project type, scope, timeline, and requirements
+2. **Material recommendation** - Suggest appropriate materials based on project needs
+3. **Plant selection** - Find optimal sourcing locations based on delivery address
+4. **Schedule optimization** - Coordinate delivery with project timeline
+5. **Budget guidance** - Offer options at different price points with clear value propositions
+
+## User Interaction Model
+- Progressive disclosure of information - don't overwhelm
+- Natural conversational flow with focused questions
+- Visual confirmation of key decisions (material images, delivery maps)
+- Easy path to modify any previous decision
+
+## Response Handling
+- Recognize vague vs. specific answers
+- Extract structured data from natural language
+- Handle incomplete information gracefully
+- Confirm understanding before proceeding
+
+## Claude Integration
+Use Claude to:
+1. Interpret user input and extract structured information
+2. Determine most relevant next questions
+3. Generate natural-sounding, contextual responses
+4. Recognize user intent beyond literal statements
+
+This approach positions Heavy Materials as a strategic partner in the construction process rather than just a materials supplier.
