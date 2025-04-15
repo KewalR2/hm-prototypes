@@ -116,8 +116,16 @@ const TrackOrderPage = observer(() => {
   
   const trackingInfo = currentQuote ? getTrackingStatus(currentQuote) : null;
 
+  // State for floating action menu
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  
+  // Function to toggle action menu
+  const toggleActionMenu = () => {
+    setShowActionMenu(!showActionMenu);
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 relative">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -129,6 +137,82 @@ const TrackOrderPage = observer(() => {
           <ThemeToggle />
         </div>
       </div>
+      
+      {/* Floating Action Button */}
+      {searched && currentQuote && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <button 
+            onClick={toggleActionMenu}
+            className="h-14 w-14 rounded-full bg-primary shadow-lg text-white flex items-center justify-center hover:bg-primary/90 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            {showActionMenu ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+              </svg>
+            )}
+          </button>
+          
+          {/* Action Menu */}
+          {showActionMenu && (
+            <div className="absolute bottom-16 right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 w-48">
+              <div className="p-2">
+                <button 
+                  onClick={() => {
+                    alert('Email sent with order details!');
+                    setShowActionMenu(false);
+                  }}
+                  className="flex items-center w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Email Order Details
+                </button>
+                <button 
+                  onClick={() => {
+                    alert('Order details PDF downloaded!');
+                    setShowActionMenu(false);
+                  }}
+                  className="flex items-center w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download PDF
+                </button>
+                <button 
+                  onClick={() => {
+                    alert('Text message with order details has been sent!');
+                    setShowActionMenu(false);
+                  }}
+                  className="flex items-center w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  Send to Mobile
+                </button>
+                <button 
+                  onClick={() => {
+                    alert('Order copied to clipboard!');
+                    setShowActionMenu(false);
+                  }}
+                  className="flex items-center w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy to Clipboard
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
@@ -178,11 +262,42 @@ const TrackOrderPage = observer(() => {
                         </p>
                       )}
                     </div>
-                    <div className="mt-2 md:mt-0">
+                    <div className="mt-2 md:mt-0 flex flex-col md:flex-row md:items-center gap-2">
                       <span className={`inline-block px-3 py-1 rounded-full text-white text-sm ${trackingInfo.statusColor}`}>
                         {trackingInfo.status}
                       </span>
                     </div>
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <button
+                      onClick={() => alert('Email sent with order details!')}
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Send to Email
+                    </button>
+                    <button
+                      onClick={() => alert('Order details PDF downloaded!')}
+                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download PDF
+                    </button>
+                    <button
+                      onClick={() => alert('Text message with order details has been sent!')}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md shadow-sm text-gray-700 dark:text-white bg-white dark:bg-gray-600 hover:bg-gray-50 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      Send to Mobile
+                    </button>
                   </div>
                 </div>
                 
@@ -276,28 +391,52 @@ const TrackOrderPage = observer(() => {
                       </p>
                       {currentQuote.costBreakdown && (
                         <>
+                          {/* Material costs */}
                           {currentQuote.costBreakdown.materialCosts && currentQuote.costBreakdown.materialCosts.length > 0 && (
                             <p className="text-sm mb-1">
-                              <span className="font-medium">Materials Cost:</span> ${currentQuote.costBreakdown.materialCosts.reduce((sum, cost) => sum + cost.totalCost, 0).toFixed(2)}
+                              <span className="font-medium">Materials Cost:</span> ${currentQuote.costBreakdown.materialCosts.reduce((sum, cost) => sum + cost.totalCost, 0).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}
                             </p>
                           )}
                           
-                          {/* Hard-coded transportation costs for previously saved quotes */}
-                          {currentQuote.id && currentQuote.id.includes('QR-') && (
-                            <p className="text-sm mb-1">
-                              <span className="font-medium">Transport Cost:</span> $15000.00
-                            </p>
-                          )}
+                          {/* Transportation costs based on number of materials */}
+                          <p className="text-sm mb-1">
+                            <span className="font-medium">Transport Cost:</span> ${currentQuote.materials && currentQuote.materials.length > 1 ? '15,000.00' : '5,250.00'}
+                          </p>
                           
-                          {/* Hard-coded toll fees for previously saved quotes */}
-                          {currentQuote.id && currentQuote.id.includes('QR-') && (
-                            <p className="text-sm mb-1">
-                              <span className="font-medium">Toll Fees:</span> $500.00
-                            </p>
-                          )}
+                          {/* Fixed toll fees for all quotes */}
+                          <p className="text-sm mb-1">
+                            <span className="font-medium">Toll Fees:</span> $500.00
+                          </p>
                           
+                          {/* Fixed additional fees for all quotes */}
+                          <p className="text-sm mb-1">
+                            <span className="font-medium">Additional Fees:</span> $250.00
+                          </p>
+                          
+                          {/* Recalculated total that always includes our fixed values */}
                           <p className="text-sm font-medium text-lg mt-2">
-                            <span className="font-medium">Total:</span> ${currentQuote.costBreakdown.totalCost.toFixed(2)}
+                            <span className="font-medium">Total:</span> ${(() => {
+                              // Calculate materials cost
+                              const materialsCost = currentQuote.costBreakdown.materialCosts ? 
+                                currentQuote.costBreakdown.materialCosts.reduce((sum, cost) => sum + cost.totalCost, 0) : 0;
+                              
+                              // Add transport cost
+                              const transportCost = currentQuote.materials && currentQuote.materials.length > 1 ? 15000 : 5250;
+                              
+                              // Add other costs
+                              const otherCosts = 750; // 500 + 250
+                              
+                              // Calculate total
+                              const total = materialsCost + transportCost + otherCosts;
+                              
+                              return total.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              });
+                            })()}
                           </p>
                         </>
                       )}
@@ -306,44 +445,70 @@ const TrackOrderPage = observer(() => {
                   
                   {/* Recent activities */}
                   {/* Delivery Verification Section */}
-                  {currentQuote.plantSelections && currentQuote.plantSelections.length > 0 && currentQuote.plantSelections.some(plant => {
-                    // Find plant details from recommendations
-                    const plantDetails = store.recommendedPlants.find(p => p.plant.id === plant.plantId);
-                    return plantDetails?.plant.deliveryVerification;
-                  }) && (
+                  {currentQuote && trackingInfo && trackingInfo.progress >= 60 && (
                     <div className="mb-6 border dark:border-gray-700 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
                       <h4 className="font-medium text-gray-800 dark:text-white mb-2">Delivery Verification</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        Share this Delivery Code with the truck driver upon delivery to verify receipt of materials.
+                      </p>
                       <div className="space-y-3">
-                        {currentQuote.plantSelections.map((selection, index) => {
-                          // Find plant details from recommendations
-                          const plantDetails = store.recommendedPlants.find(p => p.plant.id === selection.plantId);
-                          if (!plantDetails?.plant.deliveryVerification) return null;
-                          
-                          return (
-                            <div key={index} className="flex items-start">
-                              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 w-full">
-                                <div className="font-medium text-gray-800 dark:text-white">
-                                  {plantDetails.plant.name || selection.plantId}
+                        <div className="flex items-start">
+                          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 w-full">
+                            <div className="font-medium text-gray-800 dark:text-white">
+                              {currentQuote.plants?.[0]?.name || 'Primary Materials Supplier'}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              Verify delivery by providing the Delivery Code to the driver when they arrive
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                              <div className="text-sm text-gray-600 dark:text-gray-300">
+                                <div>
+                                  <span className="font-medium mr-1">Vehicle:</span> Heavy-Duty Mixer Truck (DL-45-RT-7890)
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                  {plantDetails.plant.deliveryVerification.instructions}
+                                <div>
+                                  <span className="font-medium mr-1">Truck Number:</span> TRK-{Math.floor(1000 + Math.random() * 9000)}
                                 </div>
-                                <div className="mt-2 flex items-center justify-between">
-                                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                                    {plantDetails.plant.truckInfo && (
-                                      <div>
-                                        <span>Vehicle:</span> {plantDetails.plant.truckInfo.vehicleType} ({plantDetails.plant.truckInfo.plateNumber})
-                                      </div>
-                                    )}
+                                <div>
+                                  <span className="font-medium mr-1">Driver:</span> John Morrison
+                                </div>
+                              </div>
+                              <div className="font-mono text-lg font-bold text-primary">
+                                <span className="block text-sm font-normal text-gray-600 dark:text-gray-400">Delivery Code:</span>
+                                {Math.floor(100000 + Math.random() * 900000)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {currentQuote.materials && currentQuote.materials.length > 1 && (
+                          <div className="flex items-start">
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 w-full">
+                              <div className="font-medium text-gray-800 dark:text-white">
+                                Secondary Materials Delivery
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                Verify delivery by providing the Delivery Code to the driver when they arrive
+                              </div>
+                              <div className="mt-2 flex items-center justify-between">
+                                <div className="text-sm text-gray-600 dark:text-gray-300">
+                                  <div>
+                                    <span className="font-medium mr-1">Vehicle:</span> Flatbed Truck (DL-78-ST-2345)
                                   </div>
-                                  <div className="font-mono text-lg font-bold text-primary">
-                                    {plantDetails.plant.deliveryVerification.otp}
+                                  <div>
+                                    <span className="font-medium mr-1">Truck Number:</span> TRK-{Math.floor(1000 + Math.random() * 9000)}
                                   </div>
+                                  <div>
+                                    <span className="font-medium mr-1">Driver:</span> Sarah Williams
+                                  </div>
+                                </div>
+                                <div className="font-mono text-lg font-bold text-primary">
+                                  <span className="block text-sm font-normal text-gray-600 dark:text-gray-400">Delivery Code:</span>
+                                  {Math.floor(100000 + Math.random() * 900000)}
                                 </div>
                               </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
