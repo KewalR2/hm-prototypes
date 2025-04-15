@@ -359,15 +359,65 @@ export default function QuestionPanel({
         {/* Text input for answering questions */}
         {!showMaterialOptions && !showPlantOptions && !showBudgetInput && !showCustomerInfoForm && (
           <div>
-            <textarea
-              ref={textareaRef}
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="Type your answer here..."
-              rows={3}
-              disabled={isLoading}
-            />
+            {/* Delivery Location - Address and Date */}
+            {stepType === StepType.DELIVERY_LOCATION ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Delivery Address
+                  </label>
+                  <textarea
+                    ref={textareaRef}
+                    value={answer.split('|||')[0] || ''}
+                    onChange={(e) => {
+                      const parts = answer.split('|||');
+                      parts[0] = e.target.value;
+                      // Ensure array has correct length
+                      while (parts.length < 2) parts.push('');
+                      setAnswer(parts.join('|||'));
+                    }}
+                    className="w-full p-3 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter the delivery address..."
+                    rows={3}
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Preferred Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    value={answer.split('|||')[1] || ''}
+                    onChange={(e) => {
+                      const parts = answer.split('|||');
+                      parts[1] = e.target.value;
+                      // Ensure array has correct length
+                      while (parts.length < 2) parts.push('');
+                      setAnswer(parts.join('|||'));
+                    }}
+                    className="w-full p-3 border rounded-md dark:bg-gray-800 dark:border-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    min={new Date().toISOString().split('T')[0]} // Today or later
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Please provide the full delivery address and your preferred delivery date.
+                </div>
+              </div>
+            ) : (
+              <textarea
+                ref={textareaRef}
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Type your answer here..."
+                rows={3}
+                disabled={isLoading}
+              />
+            )}
           </div>
         )}
         

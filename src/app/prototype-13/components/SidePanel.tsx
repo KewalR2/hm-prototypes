@@ -84,8 +84,14 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
       .join(' ');
   };
   
-  // Get materials supplied by a plant
+  // Get materials supplied by a plant - only the specific materials assigned to this plant
   const getMaterialsForPlant = (plantSelection: PlantSelection): string => {
+    // If no materials are assigned to this plant, return empty string
+    if (!plantSelection.materialIds || plantSelection.materialIds.length === 0) {
+      return "No materials assigned";
+    }
+    
+    // Get only the materials that are specifically assigned to THIS plant
     return plantSelection.materialIds
       .map(id => formatMaterialName(id))
       .join(', ');
@@ -139,17 +145,19 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
                     <div><span className="font-medium dark:text-white">Company:</span> <span className="dark:text-gray-200">{quoteRequest.customer.company}</span></div>
                   )}
                   <div><span className="font-medium dark:text-white">Contact:</span> <span className="dark:text-gray-200">{quoteRequest.customer.contactInfo}</span></div>
-                  <div className="mt-1 flex items-center">
-                    <span className="font-medium dark:text-white mr-2">Expertise:</span>
-                    <span className={`
-                      px-2 py-0.5 rounded-md text-xs font-medium capitalize
-                      ${quoteRequest.customer.expertiseLevel === 'beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
-                        quoteRequest.customer.expertiseLevel === 'intermediate' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'}
-                    `}>
-                      {quoteRequest.customer.expertiseLevel}
-                    </span>
-                  </div>
+                  {quoteRequest.customer.expertiseLevel && quoteRequest.customer.expertiseLevel !== "" && (
+                    <div className="mt-1 flex items-center">
+                      <span className="font-medium dark:text-white mr-2">Expertise:</span>
+                      <span className={`
+                        px-2 py-0.5 rounded-md text-xs font-medium capitalize
+                        ${quoteRequest.customer.expertiseLevel === 'beginner' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                          quoteRequest.customer.expertiseLevel === 'intermediate' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'}
+                      `}>
+                        {quoteRequest.customer.expertiseLevel}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-700 rounded-md p-3 text-sm text-gray-500 dark:text-gray-400 italic">
@@ -163,15 +171,19 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
               <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Project</h3>
               {quoteRequest.project ? (
                 <div className="bg-white dark:bg-gray-700 rounded-md p-3 text-sm">
-                  <div><span className="font-medium dark:text-white">Type:</span> <span className="dark:text-gray-200">{quoteRequest.project.projectType}</span></div>
+                  <div><span className="font-medium dark:text-white">Type:</span> <span className="dark:text-gray-200">{quoteRequest.project.projectType || 'Not specified'}</span></div>
                   {quoteRequest.project.summary && (
                     <div className="mt-1">
                       <span className="font-medium dark:text-white">Summary:</span>
                       <div className="mt-1 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-600 p-2 rounded">{quoteRequest.project.summary}</div>
                     </div>
                   )}
-                  <div className="mt-1"><span className="font-medium dark:text-white">Description:</span></div>
-                  <div className="mt-1 text-gray-700 dark:text-gray-300">{quoteRequest.project.description}</div>
+                  {quoteRequest.project.description && quoteRequest.project.description !== 'Project created from quote type' && (
+                    <>
+                      <div className="mt-1"><span className="font-medium dark:text-white">Description:</span></div>
+                      <div className="mt-1 text-gray-700 dark:text-gray-300">{quoteRequest.project.description}</div>
+                    </>
+                  )}
                   {quoteRequest.project.equipment && (
                     <div className="mt-2">
                       <div><span className="font-medium dark:text-white">Equipment:</span></div>
@@ -231,9 +243,11 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
             {/* Delivery Information */}
             <div>
               <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Delivery Information</h3>
-              {quoteRequest.deliveryInfo ? (
+              {quoteRequest.deliveryInfo && (quoteRequest.deliveryInfo.location?.address || quoteRequest.deliveryInfo.preferredDate || quoteRequest.deliveryInfo.budget !== undefined) ? (
                 <div className="bg-white dark:bg-gray-700 rounded-md p-3 text-sm">
-                  <div><span className="font-medium dark:text-white">Location:</span> <span className="dark:text-gray-200">{quoteRequest.deliveryInfo.location.address}</span></div>
+                  {quoteRequest.deliveryInfo.location?.address && (
+                    <div><span className="font-medium dark:text-white">Location:</span> <span className="dark:text-gray-200">{quoteRequest.deliveryInfo.location.address}</span></div>
+                  )}
                   {quoteRequest.deliveryInfo.preferredDate && (
                     <div>
                       <span className="font-medium dark:text-white">Preferred Date:</span> <span className="dark:text-gray-200">{quoteRequest.deliveryInfo.preferredDate}</span>
@@ -271,6 +285,19 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
                         <div className="text-gray-500 dark:text-gray-400">
                           Supplying materials: {getMaterialsForPlant(selection)}
                         </div>
+                        {/* Show truck info if available */}
+                        {(() => {
+                          // Find plant details from recommendations
+                          const plantDetail = quoteRequest.costBreakdown?.transportationCosts?.find(t => t.plantId === selection.plantId);
+                          if (!plantDetail) return null;
+                          
+                          // Check for truck info in plant data (this would need to be populated from Claude API)
+                          return (
+                            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-medium">Transport:</span> {plantDetail.distance} miles (${plantDetail.cost.toFixed(2)})
+                            </div>
+                          );
+                        })()}
                       </li>
                     ))}
                   </ul>
@@ -351,7 +378,10 @@ const SidePanel = observer(({ quoteRequest }: SidePanelProps) => {
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-700 rounded-md p-3 text-sm text-gray-500 dark:text-gray-400 italic">
-                  No transportation costs calculated yet
+                  {(quoteRequest.costBreakdown?.tollCosts !== undefined || quoteRequest.costBreakdown?.additionalFees !== undefined) ? 
+                    `Transportation Cost: $0.00` : 
+                    'No transportation costs calculated yet'
+                  }
                 </div>
               )}
             </div>

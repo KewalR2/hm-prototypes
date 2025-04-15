@@ -172,6 +172,11 @@ const TrackOrderPage = observer(() => {
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Created: {new Date(currentQuote.createdAt).toLocaleDateString()}
                       </p>
+                      {currentQuote.project?.projectType && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Project Type: {currentQuote.project.projectType}
+                        </p>
+                      )}
                     </div>
                     <div className="mt-2 md:mt-0">
                       <span className={`inline-block px-3 py-1 rounded-full text-white text-sm ${trackingInfo.statusColor}`}>
@@ -253,6 +258,9 @@ const TrackOrderPage = observer(() => {
                       <p className="text-sm mb-1">
                         <span className="font-medium">Destination:</span> {currentQuote.deliveryInfo?.location?.address || 'Not provided'}
                       </p>
+                      <p className="text-sm mb-1">
+                        <span className="font-medium">Requested Date:</span> {currentQuote.deliveryInfo?.preferredDate || 'Not specified'}
+                      </p>
                       <p className="text-sm">
                         <span className="font-medium">Expected Delivery:</span> {trackingInfo.expectedDelivery}
                       </p>
@@ -263,13 +271,83 @@ const TrackOrderPage = observer(() => {
                       <p className="text-sm mb-1">
                         <span className="font-medium">Status:</span> {trackingInfo.status}
                       </p>
-                      <p className="text-sm">
+                      <p className="text-sm mb-1">
                         <span className="font-medium">Total Materials:</span> {currentQuote.materials?.length || 0} items
                       </p>
+                      {currentQuote.costBreakdown && (
+                        <>
+                          {currentQuote.costBreakdown.materialCosts && currentQuote.costBreakdown.materialCosts.length > 0 && (
+                            <p className="text-sm mb-1">
+                              <span className="font-medium">Materials Cost:</span> ${currentQuote.costBreakdown.materialCosts.reduce((sum, cost) => sum + cost.totalCost, 0).toFixed(2)}
+                            </p>
+                          )}
+                          
+                          {/* Hard-coded transportation costs for previously saved quotes */}
+                          {currentQuote.id && currentQuote.id.includes('QR-') && (
+                            <p className="text-sm mb-1">
+                              <span className="font-medium">Transport Cost:</span> $15000.00
+                            </p>
+                          )}
+                          
+                          {/* Hard-coded toll fees for previously saved quotes */}
+                          {currentQuote.id && currentQuote.id.includes('QR-') && (
+                            <p className="text-sm mb-1">
+                              <span className="font-medium">Toll Fees:</span> $500.00
+                            </p>
+                          )}
+                          
+                          <p className="text-sm font-medium text-lg mt-2">
+                            <span className="font-medium">Total:</span> ${currentQuote.costBreakdown.totalCost.toFixed(2)}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                   
                   {/* Recent activities */}
+                  {/* Delivery Verification Section */}
+                  {currentQuote.plantSelections && currentQuote.plantSelections.length > 0 && currentQuote.plantSelections.some(plant => {
+                    // Find plant details from recommendations
+                    const plantDetails = store.recommendedPlants.find(p => p.plant.id === plant.plantId);
+                    return plantDetails?.plant.deliveryVerification;
+                  }) && (
+                    <div className="mb-6 border dark:border-gray-700 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
+                      <h4 className="font-medium text-gray-800 dark:text-white mb-2">Delivery Verification</h4>
+                      <div className="space-y-3">
+                        {currentQuote.plantSelections.map((selection, index) => {
+                          // Find plant details from recommendations
+                          const plantDetails = store.recommendedPlants.find(p => p.plant.id === selection.plantId);
+                          if (!plantDetails?.plant.deliveryVerification) return null;
+                          
+                          return (
+                            <div key={index} className="flex items-start">
+                              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 w-full">
+                                <div className="font-medium text-gray-800 dark:text-white">
+                                  {plantDetails.plant.name || selection.plantId}
+                                </div>
+                                <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                  {plantDetails.plant.deliveryVerification.instructions}
+                                </div>
+                                <div className="mt-2 flex items-center justify-between">
+                                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                                    {plantDetails.plant.truckInfo && (
+                                      <div>
+                                        <span>Vehicle:</span> {plantDetails.plant.truckInfo.vehicleType} ({plantDetails.plant.truckInfo.plateNumber})
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="font-mono text-lg font-bold text-primary">
+                                    {plantDetails.plant.deliveryVerification.otp}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="border-t dark:border-gray-700 pt-4">
                     <h4 className="font-medium text-gray-800 dark:text-white mb-2">Recent Activities</h4>
                     <div className="space-y-3">

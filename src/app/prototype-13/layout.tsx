@@ -17,12 +17,16 @@ export default function Layout({
   useEffect(() => {
     const root = document.documentElement;
     
-    // Apply light/dark theme
+    // Apply dark theme by default
+    root.classList.add('dark');
+    
+    // Apply light/dark theme from localStorage if available
     const theme = localStorage.getItem('theme');
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else if (theme === 'light') {
+    if (theme === 'light') {
       root.classList.remove('dark');
+    } else if (theme === 'dark' || theme === null) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       // Check system preference if no saved preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -50,11 +54,18 @@ export default function Layout({
       (function() {
         try {
           var root = document.documentElement;
+          
+          // Add dark theme by default
+          root.classList.add('dark');
+          
           var theme = localStorage.getItem('theme');
           var colorTheme = localStorage.getItem('colorTheme');
           
-          if (theme === 'dark') {
-            root.classList.add('dark');
+          if (theme === 'light') {
+            root.classList.remove('dark');
+          } else if (theme !== 'dark' && theme !== 'light') {
+            // Set dark as default if no theme is stored
+            localStorage.setItem('theme', 'dark');
           }
           
           if (colorTheme && colorTheme !== 'default') {

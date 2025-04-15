@@ -98,6 +98,15 @@ export interface Plant {
   minDeliveryDistance: number;
   maxDeliveryDistance: number;
   tollZones: string[];
+  truckInfo?: {
+    vehicleType: string;
+    plateNumber: string;
+    driverContact: string;
+  };
+  deliveryVerification?: {
+    otp: string;
+    instructions: string;
+  };
 }
 
 export interface PlantRecommendation {
@@ -155,6 +164,7 @@ export interface ClaudeResponse {
     description?: string;
     commonUses?: string[];
     recommendedQuantity: number;
+    preferredPlantId?: string; // Added for specific plant recommendation
   }[];
   plants?: {
     id: string;
@@ -170,6 +180,15 @@ export interface ClaudeResponse {
     minDeliveryDistance?: number;
     maxDeliveryDistance?: number;
     tollZones?: string[];
+    truckInfo?: {
+      vehicleType: string;
+      plateNumber: string;
+      driverContact: string;
+    };
+    deliveryVerification?: {
+      otp: string;
+      instructions: string;
+    };
     materials?: {
       materialId: string;
       availability: 'high' | 'medium' | 'low';

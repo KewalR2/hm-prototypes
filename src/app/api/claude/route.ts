@@ -56,12 +56,15 @@ export async function POST(request: NextRequest) {
       // Make API call to Claude with a simple system prompt
       const response = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20240620',
-        max_tokens: 1500,
+        max_tokens: 4000, // Increased to handle larger JSON responses
         temperature: 0.2,
         system: `
           You are an AI assistant helping with a heavy construction materials quote request system. 
-          You are DIRECT and EFFICIENT - you ask only the most essential questions needed for a construction materials quote without any tangential inquiries. 
-          You MUST always respond in valid JSON format according to the structure specified in the user's prompt.`,
+          Be EXTREMELY CONCISE. Keep all questions under 10 words.
+          You MUST always respond in valid JSON format according to the structure specified in the user's prompt.
+          For plant recommendations: Assign each material to a specific plant based on specialization. Do not assign all materials to all plants.
+          EXPERTISE LEVEL: Only provide expertise_level AFTER receiving project_info, not during customer_info step.
+          IMPORTANT: Ensure your JSON is complete and valid. Do not truncate the response.`,
         messages: [{ role: 'user', content: prompt }]
       });
       

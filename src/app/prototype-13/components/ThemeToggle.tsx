@@ -6,7 +6,7 @@ type ThemeType = 'light' | 'dark';
 type ColorTheme = 'default' | 'blue' | 'green' | 'purple' | 'orange';
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<ThemeType>('light');
+  const [theme, setTheme] = useState<ThemeType>('dark');
   const [colorTheme, setColorTheme] = useState<ColorTheme>('default');
   const [isOpen, setIsOpen] = useState(false);
 

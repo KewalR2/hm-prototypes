@@ -192,18 +192,15 @@ class QuoteStore {
           ...projectUpdates
         };
       }
-    } else if (response.quote_type) {
-      // Create project if it doesn't exist
-      console.log(`Creating project with quote type from API: "${response.quote_type}"`);
-      this.quoteRequest.project = {
-        description: 'Project created from quote type',
-        projectType: response.quote_type,
-        summary: response.project_summary
-      };
+    } else if (response.quote_type && this.currentStepType !== StepType.CUSTOMER_INFO) {
+      // Create project if it doesn't exist and we're not in customer info step
+      console.log(`Adding quote type from API: "${response.quote_type}"`);
+      // Only add quote type, don't create a fake description or project
     }
     
-    // Update expertise level if customer exists and API provides it
-    if (this.quoteRequest.customer && response.expertise_level) {
+    // Update expertise level if customer exists and API provides it,
+    // but ONLY if we're past customer info step (i.e., when project info is provided)
+    if (this.quoteRequest.customer && response.expertise_level && this.currentStepType !== StepType.CUSTOMER_INFO) {
       // Only update if it's different to avoid unnecessary logs
       if (this.quoteRequest.customer.expertiseLevel !== response.expertise_level) {
         console.log(`Updating expertise level from API: "${this.quoteRequest.customer.expertiseLevel}" -> "${response.expertise_level}"`);

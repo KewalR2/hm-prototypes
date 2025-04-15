@@ -75,12 +75,12 @@ You are an AI assistant helping with a heavy construction materials quote reques
 OUTPUT Format:
 You MUST output ONLY JSON in this EXACT format:
 {
-    "question": "The question is straightforward. We don't put any thank you and stuff here",
+    "question": "Keep questions short. Only include essential information.", 
     "componentType": "${currentStepType}", // MUST be one of: "customer_info", "project_info", "material_selection", "delivery_location", "budget", "plant_selection", "confirmation"
     "materials": [], // Provide only when we are in material_selection step otherwise skip
     "plants": [], // Provide only when we are in plant_selection step otherwise skip
     "quote_type": "ALWAYS INCLUDE with specific project type like 'Highway Construction', 'Road Construction', 'Bridge Construction', etc.",
-    "expertise_level": "Always analyze customer's expertise based on their answers and provide 'beginner', 'intermediate', or 'expert'",
+    "expertise_level": "ONLY analyze expertise level AFTER customer provides project_info, never during customer_info step. Valid values are: 'beginner', 'intermediate', or 'expert'",
     "project_summary": "When project_info is provided, include a 1-2 sentence technical summary of the project",
     "costs": {}, // Provide only when we have selected materials and plants otherwise skip
 }
@@ -97,14 +97,15 @@ Each object must follow this format:
     "basePrice": 50,
     "description": "Brief description of the material",
     "commonUses": ["Road base", "Foundation fill"],
-    "recommendedQuantity": 100
+    "recommendedQuantity": 100,
+    "preferredPlantId": "plant-id" // OPTIONAL: For specific plant recommendation
 }
 
 plants[]:
 Each object must follow this format:
 {
     "id": "plant-id",
-    "name": "Plant Name",
+    "name": "Plant Name", // Must be descriptive and professional (e.g. "Northeast Concrete Supply")
     "location": {
         "address": "Physical address",
         "coordinates": {
@@ -116,6 +117,15 @@ Each object must follow this format:
     "minDeliveryDistance": 0,
     "maxDeliveryDistance": 100,
     "tollZones": [],
+    "truckInfo": { // NEW: Include truck information
+        "vehicleType": "Heavy Duty", // e.g. "Heavy Duty", "Light Duty", "Crane Truck"
+        "plateNumber": "TR-1234", // A realistic truck identifier
+        "driverContact": "555-123-4567" // Driver's contact number
+    },
+    "deliveryVerification": { // NEW: Include delivery verification info
+        "otp": "123456", // A 6-digit OTP code for verification
+        "instructions": "Share OTP with driver upon delivery"
+    },
     "materials": [
         {
             "materialId": "material-id",
@@ -137,9 +147,9 @@ MANDATORY SEQUENCE (never skip or reorder):
 1. customer_info → Ask: "What's your name and contact information?" (componentType MUST be "customer_info")
 2. project_info → Ask: "Can you describe what you are trying to build?" (componentType MUST be "project_info")
 3. material_selection → IMMEDIATELY after project_info is answered, respond with recommended materials. Do NOT ask. Use this question: "Based on your [project type], here are the recommended materials. Are there any additional materials you need?" (componentType MUST be "material_selection")
-4. delivery_location → Ask: "Where should we deliver these materials?" (componentType MUST be "delivery_location")
+4. delivery_location → Ask: "Where and when should we deliver these materials? Please include your preferred delivery date." (componentType MUST be "delivery_location")
 5. budget → Ask: "What's your budget for this project?" (componentType MUST be "budget")
-6. plant_selection → Offer multiple plants with pricing and availability. (componentType MUST be "plant_selection")
+6. plant_selection → IMPORTANT: Do NOT assign all materials to all plants. Each plant should specialize in specific materials only. Include truck and delivery verification info for each plant. Keep the question short and direct. (componentType MUST be "plant_selection")
 7. confirmation → Final message: "Thank you. Your quote has been generated and can be viewed in the sidebar." (componentType MUST be "confirmation")
 
 STATE:
@@ -185,8 +195,27 @@ export async function callClaudeAPI(
     let claudeResponse: ClaudeResponse;
     
     try {
-      // Parse Claude's response as JSON
-      claudeResponse = JSON.parse(data.text);
+      // Try to safely parse Claude's response as JSON with error handling
+      try {
+        // Check if the response is incomplete JSON
+        const responseText = data.text.trim();
+        let jsonText = responseText;
+        
+        // Check if the JSON is incomplete (missing closing brackets)
+        const openBraces = (responseText.match(/{/g) || []).length;
+        const closeBraces = (responseText.match(/}/g) || []).length;
+        
+        if (openBraces > closeBraces) {
+          console.warn('Detected incomplete JSON response, attempting to fix');
+          // Attempt to fix by adding missing closing braces
+          jsonText = responseText + '}'.repeat(openBraces - closeBraces);
+        }
+        
+        claudeResponse = JSON.parse(jsonText);
+      } catch (innerError) {
+        console.error('Error parsing JSON even after repair attempt', innerError);
+        throw new Error('Invalid JSON response from Claude API');
+      }
       
       // Validate required fields
       if (!claudeResponse.question || !claudeResponse.componentType) {
@@ -256,7 +285,8 @@ export function processAnswer(
           name,
           company,
           contactInfo: contactInfo || name,
-          // Don't set expertise level here, wait for Claude to infer it
+          // Don't set a default expertise level - will be determined after project info
+          expertiseLevel: '' 
         };
       }
       break;
@@ -265,26 +295,48 @@ export function processAnswer(
       // Extract project details
       updatedQuote.project = {
         description: answer,
-        projectType: 'General Construction' // We'll let Claude determine this
+        projectType: 'General Construction', // We'll let Claude determine this
+        summary: undefined // This will be provided by Claude
       };
       break;
       
     case StepType.MATERIAL_SELECTION:
-      // Use materials from Claude response 
-      updatedQuote.materials = recommendedMaterials.map(material => ({
-        materialId: material.id,
-        quantity: material.recommendedQuantity || 0
-      }));
+      // Only use materials that the user actually selected
+      // The answer will be a comma-separated list of material names
+      const selectedMaterialNames = answer.split(',').map(name => name.trim()).filter(Boolean);
+      
+      // Find the corresponding material objects from the recommended materials
+      updatedQuote.materials = [];
+      
+      // Only add materials that were selected by the user
+      selectedMaterialNames.forEach(materialName => {
+        const material = recommendedMaterials.find(m => 
+          m.name === materialName || 
+          m.name.toLowerCase() === materialName.toLowerCase()
+        );
+        
+        if (material) {
+          updatedQuote.materials.push({
+            materialId: material.id,
+            quantity: material.recommendedQuantity || 0
+          });
+        }
+      });
       break;
       
     case StepType.DELIVERY_LOCATION:
-      // Update delivery address
+      // Update delivery address and date
+      const parts = answer.split('|||');
+      const address = parts[0] || '';
+      const preferredDate = parts[1] || '';
+      
       updatedQuote.deliveryInfo = {
         ...updatedQuote.deliveryInfo || {},
         location: {
-          address: answer,
+          address: address,
           coordinates: generateRandomCoordinates()
-        }
+        },
+        preferredDate: preferredDate
       };
       break;
       
@@ -302,23 +354,39 @@ export function processAnswer(
       // Parse selected plants from answer
       const selectedPlantNames = answer.split(',').map(name => name.trim());
       
-      // Use the actual plant IDs from the recommended plants
-      // This ensures we preserve the correct plant IDs from the Claude API
-      updatedQuote.plantSelections = selectedPlantNames.map((name) => {
+      // We'll create an object to map plants to their specific materials
+      const plantMaterialMap: Record<string, string[]> = {};
+      
+      // First, find each plant in the recommendedMaterials
+      selectedPlantNames.forEach((name, index) => {
         // Try to find the matching plant in recommendedMaterials by name
-        const matchingPlant = recommendedMaterials.find(material => 
-          material.name.toLowerCase().includes(name.toLowerCase()) || 
-          name.toLowerCase().includes(material.name.toLowerCase())
-        );
+        const plantId = `plant-${index + 1}`;
         
-        // If found, use the actual ID, otherwise create an ID that matches API format (plant-1, plant-2)
-        const plantId = matchingPlant?.id || `plant-${selectedPlantNames.indexOf(name) + 1}`;
-        
-        return {
-          plantId,
-          materialIds: updatedQuote.materials?.map(m => m.materialId) || []
-        };
+        // Initialize with an empty array - we'll assign materials in the next step
+        plantMaterialMap[plantId] = [];
       });
+      
+      // Now, let's evenly distribute materials among the plants
+      // Instead of giving all materials to all plants
+      if (updatedQuote.materials && updatedQuote.materials.length > 0) {
+        const plantIds = Object.keys(plantMaterialMap);
+        
+        // Distribute materials among plants
+        updatedQuote.materials.forEach((material, index) => {
+          // Assign each material to a plant in round-robin fashion
+          const targetPlantIndex = index % plantIds.length;
+          const targetPlantId = plantIds[targetPlantIndex];
+          
+          // Add this material to the target plant
+          plantMaterialMap[targetPlantId].push(material.materialId);
+        });
+      }
+      
+      // Now create the plant selections from our map
+      updatedQuote.plantSelections = Object.entries(plantMaterialMap).map(([plantId, materialIds]) => ({
+        plantId,
+        materialIds
+      }));
       break;
       
     case StepType.CONFIRMATION:
