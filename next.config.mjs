@@ -3,7 +3,6 @@ const nextConfig = {
   compiler: {
     styledComponents: true
   },
-  output: 'export',
   images: { unoptimized: true },
   eslint: {
     // Disable ESLint during build for deployment
